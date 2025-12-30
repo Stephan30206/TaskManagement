@@ -33,9 +33,6 @@ public class ChecklistController {
     @Autowired
     private UserService userService;
 
-    /**
-     * Get current user ID from JWT
-     */
     private String getCurrentUserId() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String email = auth.getName();
@@ -44,9 +41,6 @@ public class ChecklistController {
                 .getId();
     }
 
-    /**
-     * Create a new checklist for a ticket
-     */
     @PostMapping("/tickets/{ticketId}")
     public ResponseEntity<?> createChecklist(
             @PathVariable String ticketId,
@@ -61,10 +55,8 @@ public class ChecklistController {
                         .body(Map.of("error", "Checklist title is required"));
             }
 
-            // TODO: Verify ticket exists and user has permission
             Checklist checklist = checklistService.createChecklist(ticketId, title, description, userId);
 
-            // Log action
             ticketActivityService.logChecklistCreated(ticketId, null, checklist.getId(), title, userId, null, null);
 
             return ResponseEntity.status(HttpStatus.CREATED).body(checklist);
@@ -74,9 +66,6 @@ public class ChecklistController {
         }
     }
 
-    /**
-     * Get all checklists for a ticket
-     */
     @GetMapping("/tickets/{ticketId}")
     public ResponseEntity<?> getTicketChecklists(@PathVariable String ticketId) {
         try {
@@ -88,9 +77,6 @@ public class ChecklistController {
         }
     }
 
-    /**
-     * Get checklist by ID
-     */
     @GetMapping("/{checklistId}")
     public ResponseEntity<?> getChecklist(@PathVariable String checklistId) {
         try {
@@ -103,9 +89,6 @@ public class ChecklistController {
         }
     }
 
-    /**
-     * Update checklist
-     */
     @PutMapping("/{checklistId}")
     public ResponseEntity<?> updateChecklist(
             @PathVariable String checklistId,
@@ -122,9 +105,6 @@ public class ChecklistController {
         }
     }
 
-    /**
-     * Delete checklist
-     */
     @DeleteMapping("/{checklistId}")
     public ResponseEntity<?> deleteChecklist(@PathVariable String checklistId) {
         try {
@@ -136,9 +116,6 @@ public class ChecklistController {
         }
     }
 
-    /**
-     * Add item to checklist
-     */
     @PostMapping("/{checklistId}/items")
     public ResponseEntity<?> addItem(
             @PathVariable String checklistId,
@@ -161,9 +138,6 @@ public class ChecklistController {
         }
     }
 
-    /**
-     * Complete checklist item
-     */
     @PutMapping("/{checklistId}/items/{itemId}/complete")
     public ResponseEntity<?> completeItem(
             @PathVariable String checklistId,
@@ -179,9 +153,6 @@ public class ChecklistController {
         }
     }
 
-    /**
-     * Uncomplete checklist item
-     */
     @PutMapping("/{checklistId}/items/{itemId}/uncomplete")
     public ResponseEntity<?> uncompleteItem(
             @PathVariable String checklistId,
@@ -195,9 +166,6 @@ public class ChecklistController {
         }
     }
 
-    /**
-     * Update checklist item
-     */
     @PutMapping("/{checklistId}/items/{itemId}")
     public ResponseEntity<?> updateItem(
             @PathVariable String checklistId,
@@ -215,9 +183,6 @@ public class ChecklistController {
         }
     }
 
-    /**
-     * Delete checklist item
-     */
     @DeleteMapping("/{checklistId}/items/{itemId}")
     public ResponseEntity<?> deleteItem(
             @PathVariable String checklistId,
@@ -231,9 +196,6 @@ public class ChecklistController {
         }
     }
 
-    /**
-     * Get checklist progress
-     */
     @GetMapping("/{checklistId}/progress")
     public ResponseEntity<?> getProgress(@PathVariable String checklistId) {
         try {
@@ -245,9 +207,6 @@ public class ChecklistController {
         }
     }
 
-    /**
-     * Assign item to user
-     */
     @PutMapping("/{checklistId}/items/{itemId}/assign/{userId}")
     public ResponseEntity<?> assignItem(
             @PathVariable String checklistId,

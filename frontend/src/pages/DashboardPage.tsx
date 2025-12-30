@@ -436,7 +436,6 @@ const DashboardPage: React.FC = () => {
                     </Box>
                 </Box>
 
-                {/* Menu des notifications */}
                 <Menu
                     anchorEl={notificationAnchor}
                     open={Boolean(notificationAnchor)}

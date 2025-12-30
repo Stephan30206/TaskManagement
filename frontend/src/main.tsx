@@ -7,13 +7,11 @@ import App from './App.tsx';
 import './index.css';
 import { AuthProvider } from './context/AuthContext.tsx';
 
-// Interface claire pour le contexte
 interface ThemeContextType {
     toggleTheme: () => void;
     mode: 'light' | 'dark';
 }
 
-// Création du contexte avec type explicite
 export const ThemeContext = React.createContext<ThemeContextType>({
     toggleTheme: () => {},
     mode: 'light',

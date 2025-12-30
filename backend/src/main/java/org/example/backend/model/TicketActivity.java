@@ -28,34 +28,33 @@ public class TicketActivity {
     private String projectId;
 
     @Field("action")
-    private String action; // CREATED, EDITED, STATUS_CHANGED, ASSIGNED, COMMENTED, LABEL_ADDED, LABEL_REMOVED, CHECKLIST_UPDATED
+    private String action;
 
     @Field("actionBy")
-    private String actionBy; // User ID
+    private String actionBy;
 
     @Field("actionByName")
-    private String actionByName; // User name for display
+    private String actionByName;
 
     @Field("actionByEmail")
-    private String actionByEmail; // User email
+    private String actionByEmail;
 
     @Field("description")
-    private String description; // Human-readable description
+    private String description;
 
     @Field("changes")
-    private Map<String, Object> changes; // What changed (oldValue, newValue)
+    private Map<String, Object> changes;
 
     @Field("relatedEntityId")
-    private String relatedEntityId; // ID of comment, label, checklist item, etc.
+    private String relatedEntityId;
 
     @Field("relatedEntityType")
-    private String relatedEntityType; // COMMENT, LABEL, CHECKLIST_ITEM, ATTACHMENT
+    private String relatedEntityType;
 
     @Indexed
     @Field("createdAt")
     private Date createdAt;
 
-    // Constructor for common activity types
     public TicketActivity(String ticketId, String projectId, String action, String actionBy, 
                          String actionByName, String actionByEmail, String description) {
         this.ticketId = ticketId;

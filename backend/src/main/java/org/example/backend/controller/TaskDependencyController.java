@@ -29,9 +29,6 @@ public class TaskDependencyController {
     @Autowired
     private UserService userService;
 
-    /**
-     * Get current user ID from JWT
-     */
     private String getCurrentUserId() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String email = auth.getName();
@@ -40,9 +37,6 @@ public class TaskDependencyController {
                 .getId();
     }
 
-    /**
-     * Create a dependency between two tickets
-     */
     @PostMapping
     public ResponseEntity<?> createDependency(@RequestBody Map<String, String> request) {
         try {
@@ -57,13 +51,11 @@ public class TaskDependencyController {
                         .body(Map.of("error", "Required fields missing"));
             }
 
-            // Check permission
             if (!permissionService.hasPermission(projectId, userId, "ticket.edit")) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN)
                         .body(Map.of("error", "You don't have permission to create dependencies"));
             }
 
-            // Check for circular dependency
             if (dependencyService.hasCircularDependency(dependentTicketId, dependsOnTicketId)) {
                 return ResponseEntity.badRequest()
                         .body(Map.of("error", "Circular dependency detected"));
@@ -71,7 +63,6 @@ public class TaskDependencyController {
 
             TaskDependency dependency = dependencyService.createDependency(dependentTicketId, dependsOnTicketId, projectId, relationshipType, userId);
 
-            // Log action
             auditService.log("DEPENDENCY_CREATED", "TASK_DEPENDENCY", dependency.getId(), projectId, userId,
                     "Created dependency: " + dependentTicketId + " depends on " + dependsOnTicketId,
                     Map.of("dependentTicketId", dependentTicketId, "dependsOnTicketId", dependsOnTicketId));
@@ -83,9 +74,6 @@ public class TaskDependencyController {
         }
     }
 
-    /**
-     * Get dependency by ID
-     */
     @GetMapping("/{dependencyId}")
     public ResponseEntity<?> getDependency(@PathVariable String dependencyId) {
         try {
@@ -98,9 +86,6 @@ public class TaskDependencyController {
         }
     }
 
-    /**
-     * Get dependencies for a ticket (what blocks this ticket)
-     */
     @GetMapping("/tickets/{ticketId}/depends-on")
     public ResponseEntity<?> getTicketDependencies(@PathVariable String ticketId) {
         try {
@@ -115,9 +100,6 @@ public class TaskDependencyController {
         }
     }
 
-    /**
-     * Get tickets blocked by this ticket
-     */
     @GetMapping("/tickets/{ticketId}/blocked-by")
     public ResponseEntity<?> getBlockedTickets(@PathVariable String ticketId) {
         try {
@@ -132,9 +114,6 @@ public class TaskDependencyController {
         }
     }
 
-    /**
-     * Get all dependencies for a project
-     */
     @GetMapping("/projects/{projectId}")
     public ResponseEntity<?> getProjectDependencies(@PathVariable String projectId) {
         try {
@@ -149,9 +128,6 @@ public class TaskDependencyController {
         }
     }
 
-    /**
-     * Update dependency
-     */
     @PutMapping("/{dependencyId}")
     public ResponseEntity<?> updateDependency(
             @PathVariable String dependencyId,
@@ -168,9 +144,6 @@ public class TaskDependencyController {
         }
     }
 
-    /**
-     * Delete dependency
-     */
     @DeleteMapping("/{dependencyId}")
     public ResponseEntity<?> deleteDependency(@PathVariable String dependencyId) {
         try {
@@ -185,7 +158,6 @@ public class TaskDependencyController {
 
             dependencyService.deleteDependency(dependencyId);
 
-            // Log action
             auditService.log("DELETE", "TASK_DEPENDENCY", dependencyId, dependency.getProjectId(), userId,
                     "Deleted dependency", null);
 
@@ -196,9 +168,6 @@ public class TaskDependencyController {
         }
     }
 
-    /**
-     * Check if ticket can be completed (no blocking dependencies)
-     */
     @GetMapping("/tickets/{ticketId}/can-complete")
     public ResponseEntity<?> canBeCompleted(@PathVariable String ticketId) {
         try {
@@ -216,9 +185,6 @@ public class TaskDependencyController {
         }
     }
 
-    /**
-     * Check for circular dependency
-     */
     @PostMapping("/check-circular")
     public ResponseEntity<?> checkCircularDependency(@RequestBody Map<String, String> request) {
         try {
@@ -243,9 +209,6 @@ public class TaskDependencyController {
         }
     }
 
-    /**
-     * Get dependency statistics for a ticket
-     */
     @GetMapping("/tickets/{ticketId}/stats")
     public ResponseEntity<?> getTicketDependencyStats(@PathVariable String ticketId) {
         try {

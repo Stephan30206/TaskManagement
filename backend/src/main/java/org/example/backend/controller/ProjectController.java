@@ -30,54 +30,41 @@ public class ProjectController {
     @Autowired
     private UserService userService;
 
-    /* =========================
-       UTILITAIRE JWT
-       ========================= */
     private String getCurrentUserId() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String email = auth.getName(); // email depuis JWT
+        String email = auth.getName();
 
         return userService.getUserByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"))
-                .getId(); // ✅ Retourne l'ID MongoDB
+                .getId();
     }
 
     @PostMapping
     public ResponseEntity<Project> createProject(@Valid @RequestBody Project project) {
-        String userId = getCurrentUserId(); // ✅ Récupère directement l'ID
+        String userId = getCurrentUserId();
 
         Project createdProject = projectService.createProject(project, userId);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdProject);
     }
 
-    /* =========================
-       GET ALL USER PROJECTS
-       ========================= */
     @GetMapping
     public ResponseEntity<List<Project>> getUserProjects() {
         String userId = getCurrentUserId();
         return ResponseEntity.ok(projectService.getProjectsForUser(userId));
     }
 
-    /* =========================
-       GET OWNED PROJECTS
-       ========================= */
     @GetMapping("/owned")
     public ResponseEntity<List<Project>> getOwnedProjects() {
         String userId = getCurrentUserId();
         return ResponseEntity.ok(projectService.getProjectsByOwner(userId));
     }
 
-    /* =========================
-       GET PROJECT BY ID
-       ========================= */
     @GetMapping("/{id}")
     public ResponseEntity<Project> getProjectById(@PathVariable String id) {
         String userId = getCurrentUserId();
 
         return projectService.getProjectById(id)
                 .map(project -> {
-                    // Utiliser la méthode de vérification d'accès du service
                     if (!projectService.hasAccessToProject(project, userId)) {
                         return ResponseEntity
                                 .status(HttpStatus.FORBIDDEN)
@@ -88,9 +75,6 @@ public class ProjectController {
                 .orElse(ResponseEntity.<Project>notFound().build());
     }
 
-    /* =========================
-       UPDATE PROJECT
-       ========================= */
     @PutMapping("/{id}")
     public ResponseEntity<Project> updateProject(
             @PathVariable String id,
@@ -101,9 +85,6 @@ public class ProjectController {
         return ResponseEntity.ok(updatedProject);
     }
 
-    /* =========================
-       DELETE PROJECT
-       ========================= */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteProject(@PathVariable String id) {
 
@@ -112,9 +93,6 @@ public class ProjectController {
         return ResponseEntity.noContent().build();
     }
 
-    /* =========================
-       ADMIN MANAGEMENT
-       ========================= */
     @PostMapping("/{projectId}/admins/{adminId}")
     public ResponseEntity<Project> addAdmin(
             @PathVariable String projectId,
@@ -137,9 +115,6 @@ public class ProjectController {
         );
     }
 
-    /* =========================
-       TEAM MANAGEMENT
-       ========================= */
     @PostMapping("/{projectId}/team/{memberId}")
     public ResponseEntity<Project> addTeamMember(
             @PathVariable String projectId,
@@ -148,7 +123,6 @@ public class ProjectController {
         String userId = getCurrentUserId();
         Project project = projectService.addTeamMember(projectId, memberId, userId);
 
-        // ✅ Créer une ProjectUserRole avec le rôle MEMBER
         permissionService.assignRole(projectId, memberId, "MEMBER", userId);
 
         return ResponseEntity.ok(project);
@@ -162,15 +136,11 @@ public class ProjectController {
         String userId = getCurrentUserId();
         Project project = projectService.removeTeamMember(projectId, memberId, userId);
 
-        // ✅ Supprimer la ProjectUserRole associée
         permissionService.removeUserFromProject(projectId, memberId);
 
         return ResponseEntity.ok(project);
     }
 
-    /* =========================
-       UPDATE STATUS
-       ========================= */
     @PutMapping("/{id}/status")
     public ResponseEntity<Project> updateProjectStatus(
             @PathVariable String id,
@@ -187,9 +157,6 @@ public class ProjectController {
         );
     }
 
-    /* =========================
-       PROJECT MEMBERS
-       ========================= */
     @GetMapping("/{projectId}/members")
     public ResponseEntity<List<Map<String, Object>>> getProjectMembers(
             @PathVariable String projectId) {
@@ -200,9 +167,6 @@ public class ProjectController {
         );
     }
 
-    /* =========================
-       SEARCH
-       ========================= */
     @GetMapping("/search")
     public ResponseEntity<List<Project>> searchProjects(
             @RequestParam String keyword) {
@@ -213,9 +177,6 @@ public class ProjectController {
         );
     }
 
-    /* =========================
-       STATS
-       ========================= */
     @GetMapping("/stats")
     public ResponseEntity<Map<String, Object>> getUserProjectStats() {
 

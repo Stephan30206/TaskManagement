@@ -77,7 +77,6 @@ public class UserController {
             return ResponseEntity.status(401).build();
         }
 
-        // Seul l'utilisateur lui-même ou un admin peut modifier
         if (!id.equals(currentUser.get().getId())) {
             return ResponseEntity.status(403).build();
         }
@@ -116,7 +115,6 @@ public class UserController {
     @PostMapping("/reset-password-request")
     public ResponseEntity<?> requestPasswordReset(@RequestBody Map<String, String> request) {
         String email = request.get("email");
-        // TODO: Implémenter la logique de réinitialisation
         return ResponseEntity.ok(Map.of("message", "Email de réinitialisation envoyé"));
     }
 
@@ -124,7 +122,6 @@ public class UserController {
     public ResponseEntity<?> resetPassword(@RequestBody Map<String, String> request) {
         String token = request.get("token");
         String newPassword = request.get("newPassword");
-        // TODO: Implémenter la logique de réinitialisation
         return ResponseEntity.ok(Map.of("message", "Mot de passe réinitialisé avec succès"));
     }
 

@@ -15,45 +15,27 @@ public class TicketLabelService {
     @Autowired
     private TicketLabelRepository labelRepository;
 
-    /**
-     * Create a new label in a project
-     */
     public TicketLabel createLabel(String projectId, String name, String color, String createdBy) {
         TicketLabel label = new TicketLabel(name, color, projectId, createdBy);
         return labelRepository.save(label);
     }
 
-    /**
-     * Get label by ID
-     */
     public Optional<TicketLabel> getLabelById(String labelId) {
         return labelRepository.findById(labelId);
     }
 
-    /**
-     * Get all labels for a project
-     */
     public List<TicketLabel> getProjectLabels(String projectId) {
         return labelRepository.findByProjectIdAndActive(projectId, true);
     }
 
-    /**
-     * Get label by name in a project (ensures unique names within project)
-     */
     public Optional<TicketLabel> getLabelByName(String projectId, String name) {
         return labelRepository.findByProjectIdAndName(projectId, name);
     }
 
-    /**
-     * Search labels by name
-     */
     public List<TicketLabel> searchLabels(String projectId, String searchTerm) {
         return labelRepository.findByProjectIdAndNameContainingIgnoreCase(projectId, searchTerm);
     }
 
-    /**
-     * Update a label
-     */
     public TicketLabel updateLabel(String labelId, String name, String color, String description) {
         Optional<TicketLabel> label = labelRepository.findById(labelId);
 
@@ -76,9 +58,6 @@ public class TicketLabelService {
         return labelRepository.save(existing);
     }
 
-    /**
-     * Delete a label (soft delete)
-     */
     public void deleteLabel(String labelId) {
         Optional<TicketLabel> label = labelRepository.findById(labelId);
 
@@ -93,9 +72,6 @@ public class TicketLabelService {
         labelRepository.save(existing);
     }
 
-    /**
-     * Restore a deleted label
-     */
     public TicketLabel restoreLabel(String labelId) {
         Optional<TicketLabel> label = labelRepository.findById(labelId);
 
@@ -110,24 +86,15 @@ public class TicketLabelService {
         return labelRepository.save(existing);
     }
 
-    /**
-     * Get count of labels in a project
-     */
     public long countProjectLabels(String projectId) {
         return labelRepository.countByProjectId(projectId);
     }
 
-    /**
-     * Check if label exists and is active
-     */
     public boolean labelExists(String labelId) {
         Optional<TicketLabel> label = labelRepository.findById(labelId);
         return label.isPresent() && label.get().isActive();
     }
 
-    /**
-     * Validate label belongs to project
-     */
     public boolean isLabelInProject(String labelId, String projectId) {
         Optional<TicketLabel> label = labelRepository.findById(labelId);
         return label.isPresent() && label.get().getProjectId().equals(projectId) && label.get().isActive();

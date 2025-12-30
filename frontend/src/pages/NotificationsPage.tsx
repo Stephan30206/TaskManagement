@@ -32,7 +32,6 @@ import { notificationApi } from '../services/api';
 import Navbar from '../components/Navbar';
 import type { Notification } from '../services/types';
 
-// Interface pour la réponse des notifications
 interface NotificationsResponse {
     data: Notification[];
     total: number;
@@ -56,7 +55,6 @@ const NotificationsPage: React.FC = () => {
         queryFn: () => notificationApi.getAll(0, 50),
     });
 
-    // Extraire les données de la réponse Axios
     const notificationsData = notificationsResponse?.data as NotificationsResponse;
     const notifications: Notification[] = notificationsData?.data || [];
     const totalCount = notificationsData?.total || 0;

@@ -20,7 +20,6 @@ public class UserService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    // CRÉATION D'UTILISATEUR
     public User createUser(User user) {
         if (userRepository.findByEmail(user.getEmail()).isPresent()) {
             throw new RuntimeException("Email déjà utilisé");
@@ -32,25 +31,20 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    // RÉCUPÉRATION PAR ID
     public Optional<User> getUserById(String id) {
         return userRepository.findById(id);
     }
 
-    // RÉCUPÉRATION PAR EMAIL
     public Optional<User> getUserByEmail(String email) {
         return userRepository.findByEmail(email);
     }
 
-    // LISTE DE TOUS LES UTILISATEURS
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }
 
-    // MISE À JOUR D'UTILISATEUR
     public User updateUser(String id, User userDetails) {
         return userRepository.findById(id).map(existingUser -> {
-            // Ne pas permettre la modification de l'email
             if (userDetails.getFirstName() != null) {
                 existingUser.setFirstName(userDetails.getFirstName());
             }
@@ -69,30 +63,24 @@ public class UserService {
         }).orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
     }
 
-    // SUPPRESSION D'UTILISATEUR
     @Transactional
     public void deleteUser(String id) {
         userRepository.deleteById(id);
     }
 
-    // VÉRIFICATION D'EXISTENCE D'EMAIL
     public boolean existsByEmail(String email) {
         return userRepository.findByEmail(email).isPresent();
     }
 
-    // RECHERCHE D'UTILISATEURS
     public List<User> searchUsers(String query) {
-        // Recherche par nom, prénom ou email
         return userRepository.findByFirstNameContainingOrLastNameContainingOrEmailContaining(
                 query, query, query);
     }
 
-    // COMPTE D'UTILISATEURS
     public long countUsers() {
         return userRepository.count();
     }
 
-    // MISE À JOUR DU MOT DE PASSE
     public boolean updatePassword(String userId, String currentPassword, String newPassword) {
         return userRepository.findById(userId).map(user -> {
             if (passwordEncoder.matches(currentPassword, user.getPassword())) {
@@ -105,7 +93,6 @@ public class UserService {
         }).orElse(false);
     }
 
-    // RÉINITIALISATION DE MOT DE PASSE
     public boolean resetPassword(String email, String newPassword) {
         return userRepository.findByEmail(email).map(user -> {
             user.setPassword(passwordEncoder.encode(newPassword));

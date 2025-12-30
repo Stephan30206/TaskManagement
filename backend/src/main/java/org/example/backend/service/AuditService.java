@@ -21,9 +21,6 @@ public class AuditService {
     @Autowired
     private UserService userService;
 
-    /**
-     * Get client IP address from request context
-     */
     private String getClientIp() {
         try {
             ServletRequestAttributes attrs = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
@@ -35,22 +32,15 @@ public class AuditService {
                 return ip;
             }
         } catch (Exception e) {
-            // Ignore - running outside HTTP context
         }
         return "SYSTEM";
     }
 
-    /**
-     * Log a user action - PRIMARY method for audit logging
-     */
     public AuditLog log(String action, String entityType, String entityId, String projectId,
                        String userId, String description, Map<String, Object> changes) {
         return log(action, entityType, entityId, projectId, userId, description, changes, null);
     }
 
-    /**
-     * Log a user action with details
-     */
     public AuditLog log(String action, String entityType, String entityId, String projectId,
                        String userId, String description, Map<String, Object> changes, Map<String, Object> details) {
         AuditLog auditLog = new AuditLog();
@@ -66,7 +56,6 @@ public class AuditService {
         auditLog.setCreatedAt(new Date());
         auditLog.setDeletedByAdmin(false);
 
-        // Cache user info for readability
         try {
             var user = userService.getUserById(userId);
             if (user.isPresent()) {
@@ -74,51 +63,31 @@ public class AuditService {
                 auditLog.setUserEmail(user.get().getEmail());
             }
         } catch (Exception e) {
-            // Ignore if user not found
         }
 
         return auditLogRepository.save(auditLog);
     }
 
-    /**
-     * Retrieve audit logs for a project
-     */
     public List<AuditLog> getAuditsByProject(String projectId) {
         return auditLogRepository.findByProjectIdOrderByCreatedAtDesc(projectId);
     }
 
-    /**
-     * Retrieve audit logs for a specific entity
-     */
     public List<AuditLog> getAuditsByEntity(String entityId) {
         return auditLogRepository.findByEntityIdOrderByCreatedAtDesc(entityId);
     }
 
-    /**
-     * Retrieve audit logs for a user
-     */
     public List<AuditLog> getAuditsByUser(String userId) {
         return auditLogRepository.findByUserIdOrderByCreatedAtDesc(userId);
     }
 
-    /**
-     * Retrieve audit logs by action
-     */
     public List<AuditLog> getAuditsByAction(String action) {
         return auditLogRepository.findByAction(action);
     }
 
-    /**
-     * Retrieve audit logs by date range
-     */
     public List<AuditLog> getAuditsByDateRange(String projectId, Date startDate, Date endDate) {
         return auditLogRepository.findByProjectIdAndDateRange(projectId, startDate, endDate);
     }
 
-    /**
-     * Delete (mark as deleted by admin) an audit log entry
-     * Only ADMINs can do this, and it's a logical delete (marked, not physical)
-     */
     public AuditLog deleteAuditEntry(String auditLogId, String adminId, String reason) {
         Optional<AuditLog> log = auditLogRepository.findById(auditLogId);
 
@@ -135,35 +104,21 @@ public class AuditService {
         return auditLogRepository.save(auditLog);
     }
 
-    /**
-     * Get count of audits for a project
-     */
     public long countByProject(String projectId) {
         return auditLogRepository.countByProjectId(projectId);
     }
 
-    /**
-     * Get count of audits for a user
-     */
     public long countByUser(String userId) {
         return auditLogRepository.countByUserId(userId);
     }
 
-    /**
-     * Export audit logs (for compliance and reporting)
-     */
     public List<AuditLog> exportAudits(String projectId, Date startDate, Date endDate) {
         return auditLogRepository.findByProjectIdAndDateRange(projectId, startDate, endDate);
     }
 
-    /**
-     * Get all active audit logs (not deleted by admin)
-     */
     public List<AuditLog> getAllActiveAudits() {
         return auditLogRepository.findAllActive();
     }
-
-    // Convenience methods for common audit log scenarios
 
     public AuditLog logTicketCreated(String ticketId, String projectId, String userId, String title) {
         return log("CREATE", "TICKET", ticketId, projectId, userId,

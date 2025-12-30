@@ -21,10 +21,10 @@ public class Notification {
 
     @Indexed
     @Field("recipientId")
-    private String recipientId; // User receiving the notification
+    private String recipientId;
 
     @Field("senderId")
-    private String senderId; // User sending/triggering the notification
+    private String senderId;
 
     @Field("senderName")
     private String senderName;
@@ -33,7 +33,7 @@ public class Notification {
     private String senderEmail;
 
     @Field("type")
-    private String type; // TICKET_ASSIGNED, TICKET_COMMENTED, STATUS_CHANGED, LABEL_ADDED, CHECKLIST_UPDATED, etc.
+    private String type;
 
     @Field("title")
     private String title;
@@ -42,18 +42,18 @@ public class Notification {
     private String message;
 
     @Field("entityType")
-    private String entityType; // TICKET, PROJECT, COMMENT, etc.
+    private String entityType;
 
     @Indexed
     @Field("entityId")
-    private String entityId; // ID of the entity (ticket ID, comment ID, etc.)
+    private String entityId;
 
     @Indexed
     @Field("projectId")
     private String projectId;
 
     @Field("relatedData")
-    private Map<String, Object> relatedData; // Additional context
+    private Map<String, Object> relatedData;
 
     @Field("isRead")
     private boolean isRead;
@@ -67,10 +67,10 @@ public class Notification {
     private Date createdAt;
 
     @Field("actionUrl")
-    private String actionUrl; // Link to the relevant entity
+    private String actionUrl;
 
     @Field("sendEmail")
-    private boolean sendEmail; // Whether email was sent
+    private boolean sendEmail;
 
     @Field("emailSentAt")
     private Date emailSentAt;
@@ -81,7 +81,6 @@ public class Notification {
     @Field("dismissedAt")
     private Date dismissedAt;
 
-    // Constructor
     public Notification(String recipientId, String senderId, String senderName, String senderEmail,
                        String type, String title, String message, String entityType, String entityId, String projectId) {
         this.recipientId = recipientId;

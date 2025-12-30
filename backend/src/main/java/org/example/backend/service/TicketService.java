@@ -39,27 +39,17 @@ public class TicketService {
     private PermissionService permissionService;
 
     @Autowired
-    private NotificationService notificationService; // AJOUTÉ
+    private NotificationService notificationService;
 
-    // CRÉATION DE TICKET
     public Ticket createTicket(Ticket ticket, String creatorId) {
         String projectId = ticket.getProjectId();
 
-        // Trouver le projet
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new RuntimeException("Projet non trouvé"));
 
-        // VÉRIFICATION MODIFIÉE : Autoriser la création si :
-        // 1. L'utilisateur est propriétaire OU
-        // 2. L'utilisateur est admin OU
-        // 3. L'utilisateur est membre de l'équipe OU
-        // 4. TOUS les utilisateurs authentifiés peuvent créer des tickets (option)
         boolean hasAccess = project.getOwnerId().equals(creatorId) ||
                 (project.getAdminIds() != null && project.getAdminIds().contains(creatorId)) ||
                 (project.getTeamIds() != null && project.getTeamIds().contains(creatorId));
-
-        // Pour tester, autorisez tous les utilisateurs authentifiés :
-        // boolean hasAccess = true;
 
         if (!hasAccess) {
             throw new RuntimeException("Accès refusé au projet");
@@ -80,44 +70,35 @@ public class TicketService {
         return ticketRepository.save(ticket);
     }
 
-    // RÉCUPÉRATION PAR ID
     public Optional<Ticket> getTicketById(String id) {
         return ticketRepository.findById(id);
     }
 
-    // TICKETS D'UN PROJET
     public List<Ticket> getTicketsByProject(String projectId) {
         return ticketRepository.findByProjectId(projectId);
     }
 
-    // TICKETS D'UN UTILISATEUR (CRÉÉS PAR LUI)
     public List<Ticket> getTicketsForUser(String userId) {
         return ticketRepository.findByCreatorId(userId);
     }
 
-    // TICKETS ASSIGNÉS À UN UTILISATEUR
     public List<Ticket> getTicketsAssignedToUser(String userId) {
         return ticketRepository.findByAssigneeIdsContaining(userId);
     }
 
-    // MISE À JOUR DE TICKET
     public Ticket updateTicket(String id, Ticket ticketDetails, String userId) {
         return ticketRepository.findById(id).map(existingTicket -> {
             String projectId = existingTicket.getProjectId();
 
-            // Vérifier les permissions
             if (!existingTicket.getCreatorId().equals(userId)) {
-                // Check if user can edit this ticket
                 boolean canEdit = permissionService.canEditTicket(projectId, userId) ||
                         permissionService.canEditAssignedTicket(projectId, userId, existingTicket.getCreatorId(),
                                 existingTicket.getAssigneeIds());
 
-                // Also check if user is a member/manager of the project
                 if (!canEdit) {
                     Optional<Project> projectOpt = projectRepository.findById(projectId);
                     if (projectOpt.isPresent()) {
                         Project project = projectOpt.get();
-                        // Allow project members, admins, and managers to edit tickets
                         boolean isMember = project.getTeamIds() != null && project.getTeamIds().contains(userId);
                         boolean isAdmin = project.getOwnerId().equals(userId) ||
                                 (project.getAdminIds() != null && project.getAdminIds().contains(userId));
@@ -132,7 +113,6 @@ public class TicketService {
                 }
             }
 
-            // Mise à jour des champs
             if (ticketDetails.getTitle() != null) {
                 existingTicket.setTitle(ticketDetails.getTitle());
             }
@@ -154,13 +134,11 @@ public class TicketService {
         }).orElseThrow(() -> new RuntimeException("Ticket non trouvé"));
     }
 
-    // SUPPRESSION DE TICKET
     @Transactional
     public void deleteTicket(String id, String userId) {
         ticketRepository.findById(id).ifPresent(ticket -> {
             String projectId = ticket.getProjectId();
 
-            // Check if user can delete this ticket (creator or project admin)
             boolean canDelete = ticket.getCreatorId().equals(userId) ||
                     permissionService.hasPermission(projectId, userId, "ticket.delete");
 
@@ -171,12 +149,10 @@ public class TicketService {
         });
     }
 
-    // ASSIGNATION DE TICKET - MODIFIÉ POUR INCLURE LES NOTIFICATIONS
     public Ticket assignTicket(String ticketId, List<String> assigneeIds, String userId) {
         return ticketRepository.findById(ticketId).map(ticket -> {
             String projectId = ticket.getProjectId();
 
-            // Check if user can assign tickets (admin, creator, or has permission)
             boolean canAssign = ticket.getCreatorId().equals(userId) ||
                     permissionService.hasPermission(projectId, userId, "ticket.assign");
 
@@ -184,28 +160,22 @@ public class TicketService {
                 throw new RuntimeException("Permission refusée pour assigner des tickets");
             }
 
-            // Vérifier que tous les assignés existent
             for (String assigneeId : assigneeIds) {
                 if (!userService.getUserById(assigneeId).isPresent()) {
                     throw new RuntimeException("Utilisateur assigné non trouvé: " + assigneeId);
                 }
             }
 
-            // Récupérer les informations de l'utilisateur qui assigne
             User assigner = userService.getUserById(userId)
                     .orElseThrow(() -> new RuntimeException("Utilisateur assigneur non trouvé"));
 
-            // Créer une notification pour chaque nouvel assigné
             List<String> currentAssignees = ticket.getAssigneeIds() != null ? ticket.getAssigneeIds() : new ArrayList<>();
 
             for (String assigneeId : assigneeIds) {
-                // Vérifier si l'assigné n'était pas déjà assigné
                 if (!currentAssignees.contains(assigneeId)) {
-                    // Récupérer l'assigné
                     User assignee = userService.getUserById(assigneeId)
                             .orElseThrow(() -> new RuntimeException("Utilisateur assigné non trouvé: " + assigneeId));
 
-                    // Créer la notification
                     try {
                         notificationService.notifyTicketAssigned(
                                 ticketId,
@@ -220,12 +190,10 @@ public class TicketService {
                                 " à l'utilisateur " + assigneeId);
                     } catch (Exception e) {
                         System.err.println("Erreur lors de la création de la notification: " + e.getMessage());
-                        // Ne pas bloquer l'assignation si la notification échoue
                     }
                 }
             }
 
-            // Mettre à jour les assignés
             ticket.setAssigneeIds(assigneeIds);
             ticket.setUpdatedAt(new Date());
 
@@ -236,7 +204,6 @@ public class TicketService {
         }).orElseThrow(() -> new RuntimeException("Ticket non trouvé"));
     }
 
-    // STATISTIQUES DE TICKETS PAR PROJET
     public Map<String, Object> getTicketStatsByProject(String projectId) {
         Aggregation aggregation = Aggregation.newAggregation(
                 Aggregation.match(Criteria.where("projectId").is(projectId)),
@@ -251,18 +218,15 @@ public class TicketService {
         List<Map> stats = results.getMappedResults();
         Map<String, Object> result = new HashMap<>();
 
-        // Initialiser tous les statuts à 0
         result.put("TODO", 0);
         result.put("IN_PROGRESS", 0);
         result.put("IN_VALIDATION", 0);
         result.put("DONE", 0);
 
-        // Mettre à jour avec les valeurs réelles
         for (Map stat : stats) {
             result.put((String) stat.get("_id"), stat.get("count"));
         }
 
-        // Ajouter le total
         result.put("total", stats.stream()
                 .mapToInt(stat -> ((Number) stat.get("count")).intValue())
                 .sum());
@@ -270,16 +234,13 @@ public class TicketService {
         return result;
     }
 
-    // TICKETS EN RETARD
     public List<Ticket> getOverdueTickets() {
         return ticketRepository.findOverdueTickets(new Date());
     }
 
-    // RECHERCHE DE TICKETS
     public List<Ticket> searchTickets(String keyword, String projectId) {
         Query query = new Query();
 
-        // Critères de recherche
         Criteria criteria = new Criteria();
         List<Criteria> orCriteria = new ArrayList<>();
 
@@ -288,7 +249,6 @@ public class TicketService {
 
         criteria.orOperator(orCriteria.toArray(new Criteria[0]));
 
-        // Filtrer par projet si spécifié
         if (projectId != null && !projectId.isEmpty()) {
             criteria.and("projectId").is(projectId);
         }
@@ -300,7 +260,6 @@ public class TicketService {
         return mongoTemplate.find(query, Ticket.class);
     }
 
-    // FILTRAGE DE TICKETS
     public List<Ticket> filterTickets(String status, String projectId, String assigneeId) {
         Query query = new Query();
         Criteria criteria = new Criteria();
@@ -324,10 +283,8 @@ public class TicketService {
         return mongoTemplate.find(query, Ticket.class);
     }
 
-    // MISE À JOUR DE STATUT
     public Ticket updateTicketStatus(String ticketId, String status, String userId) {
         return ticketRepository.findById(ticketId).map(ticket -> {
-            // Vérifier les permissions
             boolean hasPermission = ticket.getCreatorId().equals(userId) ||
                     (ticket.getAssigneeIds() != null && ticket.getAssigneeIds().contains(userId));
 
@@ -339,7 +296,6 @@ public class TicketService {
                 });
             }
 
-            // Valider le statut
             if (!Arrays.asList("TODO", "IN_PROGRESS", "IN_VALIDATION", "DONE").contains(status)) {
                 throw new RuntimeException("Statut invalide");
             }
@@ -350,7 +306,6 @@ public class TicketService {
         }).orElseThrow(() -> new RuntimeException("Ticket non trouvé"));
     }
 
-    // COMPTE DE TICKETS
     public Map<String, Long> getTicketCounts(String userId) {
         Map<String, Long> counts = new HashMap<>();
 
@@ -361,7 +316,6 @@ public class TicketService {
         return counts;
     }
 
-    // TICKETS RÉCENTS
     public List<Ticket> getRecentTickets(int limit) {
         Query query = new Query();
         query.with(org.springframework.data.domain.Sort.by(
@@ -371,7 +325,6 @@ public class TicketService {
         return mongoTemplate.find(query, Ticket.class);
     }
 
-    // ANALYTIQUES AVANCÉES
     public Map<String, Object> getTicketAnalytics(String projectId, Date startDate, Date endDate) {
         Query query = new Query();
         Criteria criteria = Criteria.where("projectId").is(projectId);
@@ -409,7 +362,7 @@ public class TicketService {
         double totalDays = completedTickets.stream()
                 .mapToDouble(t -> {
                     long diff = t.getUpdatedAt().getTime() - t.getCreatedAt().getTime();
-                    return diff / (1000.0 * 60 * 60 * 24); // Convertir en jours
+                    return diff / (1000.0 * 60 * 60 * 24);
                 })
                 .sum();
 
@@ -424,7 +377,6 @@ public class TicketService {
         return distribution;
     }
 
-    // VÉRIFICATION D'ACCÈS AU TICKET
     public boolean hasAccessToTicket(String ticketId, String userId) {
         Optional<Ticket> ticketOpt = ticketRepository.findById(ticketId);
         if (ticketOpt.isEmpty()) {
@@ -433,17 +385,14 @@ public class TicketService {
 
         Ticket ticket = ticketOpt.get();
 
-        // Le créateur a toujours accès
         if (ticket.getCreatorId().equals(userId)) {
             return true;
         }
 
-        // Les assignés ont accès
         if (ticket.getAssigneeIds() != null && ticket.getAssigneeIds().contains(userId)) {
             return true;
         }
 
-        // Vérifier via le projet
         Optional<Project> projectOpt = projectService.getProjectById(ticket.getProjectId());
         return projectOpt.map(project ->
                 project.getOwnerId().equals(userId) ||

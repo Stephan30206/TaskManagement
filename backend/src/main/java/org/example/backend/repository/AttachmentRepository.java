@@ -9,10 +9,8 @@ import java.util.List;
 @Repository
 public interface AttachmentRepository extends MongoRepository<Attachment, String> {
 
-    // Tous les fichiers (y compris supprimés)
     List<Attachment> findByTicketId(String ticketId);
 
-    // ✅ Fichiers NON supprimés (soft delete)
     List<Attachment> findByTicketIdAndDeletedFalse(String ticketId);
 
     List<Attachment> findByCommentIdAndDeletedFalse(String commentId);
@@ -23,7 +21,6 @@ public interface AttachmentRepository extends MongoRepository<Attachment, String
 
     List<Attachment> findByTicketIdAndDeletedFalseOrderByUploadedAtDesc(String ticketId);
 
-    // ⚠️ ATTENTION : suppression physique (à éviter en prod)
     void deleteByTicketId(String ticketId);
 }
 

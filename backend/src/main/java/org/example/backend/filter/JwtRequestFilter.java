@@ -25,20 +25,15 @@ public class JwtRequestFilter extends OncePerRequestFilter {
     @Autowired
     private CustomUserDetailsService userDetailsService;
 
-    /**
-     * ✅ On ignore totalement les endpoints publics
-     */
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
-        String uri = request.getServletPath(); // ✅ Use servlet path to ignore context-path
+        String uri = request.getServletPath();
         String method = request.getMethod();
 
-        // OPTIONS requests pour CORS preflight
         if ("OPTIONS".equalsIgnoreCase(method)) {
             return true;
         }
 
-        // Seulement les endpoints d'authentification publique
         return uri.equals("/auth/login") ||
                 uri.equals("/auth/register") ||
                 uri.equals("/auth/refresh");
@@ -85,7 +80,6 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             }
 
         } catch (Exception e) {
-            // 🔒 En cas de token invalide → on laisse Security gérer (401)
             SecurityContextHolder.clearContext();
         }
 

@@ -108,7 +108,6 @@ const AuditLogViewer: React.FC<AuditLogViewerProps> = ({ projectId }) => {
                     </Button>
                 </Box>
 
-                {/* Error State - Permission Denied */}
                 {isError && error && (
                     <Alert severity="error" sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
                         <ErrorOutline fontSize="small" />

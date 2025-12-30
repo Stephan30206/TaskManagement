@@ -28,7 +28,6 @@ const AttachmentManager: React.FC<AttachmentManagerProps> = ({ ticketId}) => {
         enabled: !!ticketId,
     });
 
-    // Mutation pour supprimer
     const deleteMutation = useMutation({
         mutationFn: (attachmentId: string) => attachmentApi.delete(attachmentId),
         onSuccess: () => {
@@ -65,7 +64,6 @@ const AttachmentManager: React.FC<AttachmentManagerProps> = ({ ticketId}) => {
             const response = await attachmentApi.getDownloadUrl(attachmentId);
             const downloadUrl = response.data.fileUrl;
 
-            // Créer un lien temporaire pour le téléchargement
             const a = document.createElement('a');
             a.href = downloadUrl;
             a.download = fileName;

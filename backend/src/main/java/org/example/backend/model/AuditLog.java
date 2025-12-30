@@ -21,55 +21,55 @@ public class AuditLog {
 
     @Indexed
     @Field("action")
-    private String action; // CREATE, UPDATE, DELETE, ASSIGN, STATUS_CHANGE, COMMENT, LABEL, CHECKLIST, etc.
+    private String action;
 
     @Indexed
     @Field("entityType")
-    private String entityType; // TICKET, PROJECT, COMMENT, LABEL, CHECKLIST, ATTACHMENT, USER, etc.
+    private String entityType;
 
     @Indexed
     @Field("entityId")
-    private String entityId; // ID of the entity being modified
+    private String entityId;
 
     @Indexed
     @Field("projectId")
-    private String projectId; // For filtering audits by project
+    private String projectId;
 
     @Indexed
     @Field("userId")
-    private String userId; // User who performed the action
+    private String userId;
 
     @Field("userName")
-    private String userName; // Cached username for readability
+    private String userName;
 
     @Field("userEmail")
-    private String userEmail; // Cached email for readability
+    private String userEmail;
 
     @Field("description")
-    private String description; // Human-readable description of the action
+    private String description;
 
     @Field("changes")
-    private Map<String, Object> changes; // Old value -> new value for update operations
+    private Map<String, Object> changes;
 
     @Field("details")
-    private Map<String, Object> details; // Additional metadata
+    private Map<String, Object> details;
 
     @Indexed
     @Field("createdAt")
-    private Date createdAt; // Immutable timestamp
+    private Date createdAt;
 
     @Field("ipAddress")
-    private String ipAddress; // For security tracking
+    private String ipAddress;
 
     @Field("deletedByAdmin")
-    private boolean deletedByAdmin; // Only ADMIN can mark as deleted (logical delete, never physical)
+    private boolean deletedByAdmin;
 
     @Field("deleteReason")
-    private String deleteReason; // Reason why admin deleted this audit log entry
+    private String deleteReason;
 
     @Field("deletedAt")
-    private Date deletedAt; // When the admin deleted it
+    private Date deletedAt;
 
     @Field("deletedById")
-    private String deletedById; // Which admin deleted it
+    private String deletedById;
 }

@@ -15,18 +15,12 @@ public class NotificationService {
     @Autowired
     private NotificationRepository notificationRepository;
 
-    /**
-     * Create and send a notification to a user
-     */
     public Notification createNotification(String recipientId, String senderId, String senderName, String senderEmail,
                                           String type, String title, String message, String entityType, String entityId, String projectId) {
         Notification notification = new Notification(recipientId, senderId, senderName, senderEmail, type, title, message, entityType, entityId, projectId);
         return notificationRepository.save(notification);
     }
 
-    /**
-     * Create notification with action URL
-     */
     public Notification createNotification(String recipientId, String senderId, String senderName, String senderEmail,
                                           String type, String title, String message, String entityType, String entityId, String projectId, String actionUrl) {
         Notification notification = createNotification(recipientId, senderId, senderName, senderEmail, type, title, message, entityType, entityId, projectId);
@@ -34,51 +28,30 @@ public class NotificationService {
         return notificationRepository.save(notification);
     }
 
-    /**
-     * Get notification by ID
-     */
     public Optional<Notification> getNotificationById(String notificationId) {
         return notificationRepository.findById(notificationId);
     }
 
-    /**
-     * Get all notifications for a user (most recent first)
-     */
     public List<Notification> getUserNotifications(String userId) {
         return notificationRepository.findByRecipientIdOrderByCreatedAtDesc(userId);
     }
 
-    /**
-     * Get unread notifications for a user
-     */
     public List<Notification> getUnreadNotifications(String userId) {
         return notificationRepository.findByRecipientIdAndIsReadFalseOrderByCreatedAtDesc(userId);
     }
 
-    /**
-     * Get active (not dismissed) notifications for a user
-     */
     public List<Notification> getActiveNotifications(String userId) {
         return notificationRepository.findByRecipientIdAndDismissedFalse(userId);
     }
 
-    /**
-     * Get notifications for a project
-     */
     public List<Notification> getProjectNotifications(String userId, String projectId) {
         return notificationRepository.findByRecipientIdAndProjectId(userId, projectId);
     }
 
-    /**
-     * Get notifications related to an entity
-     */
     public List<Notification> getEntityNotifications(String entityId, String entityType) {
         return notificationRepository.findByEntityIdAndEntityType(entityId, entityType);
     }
 
-    /**
-     * Mark notification as read
-     */
     public Notification markAsRead(String notificationId) {
         Optional<Notification> notification = notificationRepository.findById(notificationId);
 
@@ -93,9 +66,6 @@ public class NotificationService {
         return notificationRepository.save(existing);
     }
 
-    /**
-     * Mark all notifications as read for a user
-     */
     public void markAllAsRead(String userId) {
         List<Notification> unread = getUnreadNotifications(userId);
         unread.forEach(n -> {
@@ -105,9 +75,6 @@ public class NotificationService {
         });
     }
 
-    /**
-     * Mark notification as dismissed
-     */
     public Notification dismissNotification(String notificationId) {
         Optional<Notification> notification = notificationRepository.findById(notificationId);
 
@@ -122,28 +89,17 @@ public class NotificationService {
         return notificationRepository.save(existing);
     }
 
-    /**
-     * Count unread notifications for a user
-     */
     public long countUnreadNotifications(String userId) {
         return notificationRepository.countByRecipientIdAndIsReadFalse(userId);
     }
 
-    /**
-     * Delete old notifications (older than a certain date)
-     */
     public void deleteOldNotifications(String userId, Date before) {
         notificationRepository.deleteByRecipientIdAndCreatedAtBefore(userId, before);
     }
 
-    /**
-     * Delete a notification
-     */
     public void deleteNotification(String notificationId) {
         notificationRepository.deleteById(notificationId);
     }
-
-    // Convenience methods for common notification types
 
     public Notification notifyTicketAssigned(String ticketId, String ticketTitle, String recipientId, String assignedBy,
                                             String assignedByName, String assignedByEmail, String projectId) {

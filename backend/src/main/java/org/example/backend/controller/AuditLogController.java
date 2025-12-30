@@ -30,9 +30,6 @@ public class AuditLogController {
     @Autowired
     private UserService userService;
 
-    /**
-     * Get current user ID from JWT
-     */
     private String getCurrentUserId() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String email = auth.getName();
@@ -41,9 +38,6 @@ public class AuditLogController {
                 .getId();
     }
 
-    /**
-     * Get audit logs for a project
-     */
     @GetMapping("/projects/{projectId}")
     public ResponseEntity<?> getProjectAudits(
             @PathVariable String projectId,
@@ -52,7 +46,6 @@ public class AuditLogController {
         try {
             String userId = getCurrentUserId();
 
-            // Check permission
             if (!permissionService.canViewAudit(projectId, userId)) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN)
                         .body(Map.of("error", "You don't have permission to view audit logs"));
@@ -60,7 +53,6 @@ public class AuditLogController {
 
             List<AuditLog> audits = auditService.getAuditsByProject(projectId);
 
-            // Pagination
             int start = page * limit;
             int end = Math.min(start + limit, audits.size());
             List<AuditLog> paginated = audits.subList(start, end);
@@ -77,9 +69,6 @@ public class AuditLogController {
         }
     }
 
-    /**
-     * Get audit logs for a specific entity
-     */
     @GetMapping("/entities/{entityId}")
     public ResponseEntity<?> getEntityAudits(
             @PathVariable String entityId) {
@@ -92,9 +81,6 @@ public class AuditLogController {
         }
     }
 
-    /**
-     * Get audit logs for a specific user
-     */
     @GetMapping("/users/{userId}")
     public ResponseEntity<?> getUserAudits(
             @PathVariable String userId,
@@ -103,7 +89,6 @@ public class AuditLogController {
         try {
             String currentUserId = getCurrentUserId();
 
-            // Users can only view their own audits (unless they're admin)
             if (!userId.equals(currentUserId) && !permissionService.hasPermission("any-project", currentUserId, "audit.view")) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN)
                         .body(Map.of("error", "You can only view your own audit logs"));
@@ -111,7 +96,6 @@ public class AuditLogController {
 
             List<AuditLog> audits = auditService.getAuditsByUser(userId);
 
-            // Pagination
             int start = page * limit;
             int end = Math.min(start + limit, audits.size());
             List<AuditLog> paginated = audits.subList(start, end);
@@ -128,9 +112,6 @@ public class AuditLogController {
         }
     }
 
-    /**
-     * Get audit logs by action type
-     */
     @GetMapping("/actions/{action}")
     public ResponseEntity<?> getAuditsByAction(
             @PathVariable String action) {
@@ -143,9 +124,6 @@ public class AuditLogController {
         }
     }
 
-    /**
-     * Get audit logs within date range
-     */
     @GetMapping("/projects/{projectId}/date-range")
     public ResponseEntity<?> getAuditsByDateRange(
             @PathVariable String projectId,
@@ -154,7 +132,6 @@ public class AuditLogController {
         try {
             String userId = getCurrentUserId();
 
-            // Check permission
             if (!permissionService.canViewAudit(projectId, userId)) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN)
                         .body(Map.of("error", "You don't have permission to view audit logs"));
@@ -168,9 +145,6 @@ public class AuditLogController {
         }
     }
 
-    /**
-     * Export audit logs (CSV format preferred)
-     */
     @GetMapping("/projects/{projectId}/export")
     public ResponseEntity<?> exportAudits(
             @PathVariable String projectId,
@@ -179,13 +153,11 @@ public class AuditLogController {
         try {
             String userId = getCurrentUserId();
 
-            // Check permission
             if (!permissionService.hasPermission(projectId, userId, "audit.export")) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN)
                         .body(Map.of("error", "You don't have permission to export audit logs"));
             }
 
-            // Use current date range if not specified
             if (startDate == null || endDate == null) {
                 endDate = new Date();
                 Date oneMonthAgo = new Date(endDate.getTime() - (30L * 24 * 60 * 60 * 1000));
@@ -205,19 +177,12 @@ public class AuditLogController {
         }
     }
 
-    /**
-     * Delete an audit log entry (ADMIN ONLY)
-     * This is a logical delete - the entry is marked as deleted but not physically removed
-     */
     @DeleteMapping("/{auditLogId}")
     public ResponseEntity<?> deleteAuditEntry(
             @PathVariable String auditLogId,
             @RequestParam String reason) {
         try {
             String userId = getCurrentUserId();
-
-            // Only ADMIN can delete audit logs
-            // TODO: Check if user is ADMIN role
 
             AuditLog deleted = auditService.deleteAuditEntry(auditLogId, userId, reason);
 
@@ -232,15 +197,11 @@ public class AuditLogController {
         }
     }
 
-    /**
-     * Get audit log statistics for a project
-     */
     @GetMapping("/projects/{projectId}/stats")
     public ResponseEntity<?> getProjectAuditStats(@PathVariable String projectId) {
         try {
             String userId = getCurrentUserId();
 
-            // Check permission
             if (!permissionService.canViewAudit(projectId, userId)) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN)
                         .body(Map.of("error", "You don't have permission to view audit logs"));

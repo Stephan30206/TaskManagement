@@ -26,17 +26,17 @@ public class Attachment {
     private String fileName;
 
     @Field("fileSize")
-    private Long fileSize; // In bytes
+    private Long fileSize;
 
     @Field("mimeType")
-    private String mimeType; // e.g., "application/pdf", "image/png"
+    private String mimeType;
 
     @NotBlank
     @Field("fileUrl")
-    private String fileUrl; // S3, GCS, or local path
+    private String fileUrl;
 
     @Field("thumbnailUrl")
-    private String thumbnailUrl; // For images
+    private String thumbnailUrl;
 
     @Indexed
     @Field("ticketId")
@@ -44,11 +44,11 @@ public class Attachment {
 
     @Indexed
     @Field("commentId")
-    private String commentId; // Attachment can be attached to a comment
+    private String commentId;
 
     @Indexed
     @Field("uploadedBy")
-    private String uploadedBy; // User ID who uploaded
+    private String uploadedBy;
 
     @Field("uploadedAt")
     private Date uploadedAt;
@@ -60,13 +60,13 @@ public class Attachment {
     private boolean isImage;
 
     @Field("width")
-    private Integer width; // For images
+    private Integer width;
 
     @Field("height")
-    private Integer height; // For images
+    private Integer height;
 
     @Field("deleted")
-    private boolean deleted; // Soft delete
+    private boolean deleted;
 
     @Field("deletedAt")
     private Date deletedAt;

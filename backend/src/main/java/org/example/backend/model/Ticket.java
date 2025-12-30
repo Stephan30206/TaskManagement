@@ -40,7 +40,7 @@ public class Ticket {
     private Date estimatedDate;
 
     @Field("dueDate")
-    private Date dueDate; // Deadline for completion
+    private Date dueDate;
 
     @Indexed
     @Field("projectId")
@@ -54,22 +54,22 @@ public class Ticket {
     private List<String> assigneeIds = new ArrayList<>();
 
     @Field("labelIds")
-    private List<String> labelIds = new ArrayList<>(); // IDs of attached labels
+    private List<String> labelIds = new ArrayList<>();
 
     @Field("checklistIds")
-    private List<String> checklistIds = new ArrayList<>(); // IDs of attached checklists
+    private List<String> checklistIds = new ArrayList<>();
 
     @Field("attachmentIds")
-    private List<String> attachmentIds = new ArrayList<>(); // IDs of attachments
+    private List<String> attachmentIds = new ArrayList<>();
 
     @Field("priority")
-    private String priority; // LOW, MEDIUM, HIGH, CRITICAL
+    private String priority;
 
     @Field("storyPoints")
-    private Integer storyPoints; // Agile estimation
+    private Integer storyPoints;
 
     @Field("completedAt")
-    private Date completedAt; // When ticket was marked as DONE
+    private Date completedAt;
 
     @Indexed
     @Field("createdAt")
@@ -78,7 +78,6 @@ public class Ticket {
     @Field("updatedAt")
     private Date updatedAt;
 
-    // Transient fields (not stored in MongoDB)
     @Transient
     private User creator;
 

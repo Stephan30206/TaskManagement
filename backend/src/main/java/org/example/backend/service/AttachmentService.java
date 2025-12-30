@@ -16,10 +16,6 @@ public class AttachmentService {
         this.attachmentRepository = attachmentRepository;
     }
 
-    /* =========================
-       CREATE
-       ========================= */
-
     public Attachment createAttachment(String fileName, Long fileSize, String mimeType,
                                        String fileUrl, String ticketId, String uploadedBy) {
         Attachment attachment = new Attachment(
@@ -38,10 +34,6 @@ public class AttachmentService {
         return attachmentRepository.save(attachment);
     }
 
-    /* =========================
-       READ
-       ========================= */
-
     public Attachment getAttachmentById(String attachmentId) {
         return attachmentRepository.findById(attachmentId)
                 .orElseThrow(() -> new RuntimeException("Attachment not found"));
@@ -58,10 +50,6 @@ public class AttachmentService {
     public List<Attachment> getUserAttachments(String userId) {
         return attachmentRepository.findByUploadedByAndDeletedFalse(userId);
     }
-
-    /* =========================
-       UPDATE
-       ========================= */
 
     public Attachment updateAttachment(String attachmentId,
                                        String description,
@@ -94,10 +82,6 @@ public class AttachmentService {
         return attachmentRepository.save(attachment);
     }
 
-    /* =========================
-       SOFT DELETE / RESTORE
-       ========================= */
-
     public Attachment softDeleteAttachment(String attachmentId, String deletedBy) {
         Attachment attachment = getAttachmentById(attachmentId);
 
@@ -125,10 +109,6 @@ public class AttachmentService {
 
         return attachmentRepository.save(attachment);
     }
-
-    /* =========================
-       VALIDATION & UTILS
-       ========================= */
 
     public boolean isImage(String attachmentId) {
         return getAttachmentById(attachmentId).isImage();

@@ -204,7 +204,6 @@ export const attachmentApi = {
         });
     },
 
-    // Méthodes existantes
     getById: (attachmentId: string) => api.get<Attachment>(`/attachments/${attachmentId}`),
     getByTicket: (ticketId: string) => api.get<Attachment[]>(`/attachments/tickets/${ticketId}`),
     getByComment: (commentId: string) => api.get<Attachment[]>(`/attachments/comments/${commentId}`),
@@ -215,12 +214,10 @@ export const attachmentApi = {
     setDimensions: (attachmentId: string, width: number, height: number) =>
         api.put<Attachment>(`/attachments/${attachmentId}/dimensions`, { width, height }),
 
-    // Méthodes corrigées et ajoutées
     download: (attachmentId: string) => api.get(`/attachments/${attachmentId}/download`, {
-        responseType: 'blob', // Important pour les téléchargements de fichiers
+        responseType: 'blob',
     }),
 
-    // Méthode pour obtenir l'URL de téléchargement - AJOUTÉE
     getDownloadUrl: (attachmentId: string) =>
         api.get<{
             fileUrl: any; downloadUrl: string
@@ -229,7 +226,6 @@ export const attachmentApi = {
     getStats: (ticketId: string) =>
         api.get<{ count: number; totalSize: number; totalSizeMB: number }>(`/attachments/tickets/${ticketId}/stats`),
 
-    // Méthodes supplémentaires communes - AJOUTÉES
     search: (ticketId: string, query: string) =>
         api.get<Attachment[]>(`/attachments/tickets/${ticketId}/search?query=${query}`),
 
@@ -248,15 +244,12 @@ export const attachmentApi = {
         return api.get<Attachment[]>(`/attachments/recent?${params.toString()}`);
     },
 
-    // Méthode pour prévisualiser un fichier
     preview: (attachmentId: string) =>
         api.get(`/attachments/${attachmentId}/preview`, { responseType: 'blob' }),
 
-    // Méthode pour compresser ou traiter un fichier
     process: (attachmentId: string, operation: string) =>
         api.post<Attachment>(`/attachments/${attachmentId}/process`, { operation }),
 
-    // Méthode pour obtenir les métadonnées EXIF
     getExifData: (attachmentId: string) =>
         api.get<Record<string, any>>(`/attachments/${attachmentId}/exif`),
 };

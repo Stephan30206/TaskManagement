@@ -33,9 +33,6 @@ public class LabelController {
     @Autowired
     private UserService userService;
 
-    /**
-     * Get current user ID from JWT
-     */
     private String getCurrentUserId() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String email = auth.getName();
@@ -44,9 +41,6 @@ public class LabelController {
                 .getId();
     }
 
-    /**
-     * Create a new label for a project
-     */
     @PostMapping("/projects/{projectId}")
     public ResponseEntity<?> createLabel(
             @PathVariable String projectId,
@@ -54,7 +48,6 @@ public class LabelController {
         try {
             String userId = getCurrentUserId();
 
-            // Check permission
             if (!permissionService.hasPermission(projectId, userId, "label.create")) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN)
                         .body(Map.of("error", "You don't have permission to create labels"));
@@ -69,7 +62,6 @@ public class LabelController {
                         .body(Map.of("error", "Label name is required"));
             }
 
-            // Check for duplicate name in project
             if (labelService.getLabelByName(projectId, name).isPresent()) {
                 return ResponseEntity.badRequest()
                         .body(Map.of("error", "Label with this name already exists in the project"));
@@ -77,7 +69,6 @@ public class LabelController {
 
             TicketLabel label = labelService.createLabel(projectId, name, color, userId);
 
-            // Log action
             auditService.log("CREATE", "LABEL", label.getId(), projectId, userId,
                     "Created label: " + name, Map.of("name", name, "color", color));
 
@@ -88,15 +79,11 @@ public class LabelController {
         }
     }
 
-    /**
-     * Get all labels for a project
-     */
     @GetMapping("/projects/{projectId}")
     public ResponseEntity<?> getProjectLabels(@PathVariable String projectId) {
         try {
             String userId = getCurrentUserId();
 
-            // Check permission
             if (!permissionService.hasPermission(projectId, userId, "project.view")) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
             }
@@ -109,9 +96,6 @@ public class LabelController {
         }
     }
 
-    /**
-     * Get label by ID
-     */
     @GetMapping("/{labelId}")
     public ResponseEntity<?> getLabel(@PathVariable String labelId) {
         try {
@@ -124,9 +108,6 @@ public class LabelController {
         }
     }
 
-    /**
-     * Update a label
-     */
     @PutMapping("/{labelId}")
     public ResponseEntity<?> updateLabel(
             @PathVariable String labelId,
@@ -134,14 +115,12 @@ public class LabelController {
         try {
             String userId = getCurrentUserId();
 
-            // Get label to find project
             var label = labelService.getLabelById(labelId)
                     .orElse(null);
             if (label == null) {
                 return ResponseEntity.notFound().build();
             }
 
-            // Check permission
             if (!permissionService.hasPermission(label.getProjectId(), userId, "label.edit")) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN)
                         .body(Map.of("error", "You don't have permission to edit labels"));
@@ -153,7 +132,6 @@ public class LabelController {
 
             TicketLabel updated = labelService.updateLabel(labelId, name, color, description);
 
-            // Log action
             auditService.log("UPDATE", "LABEL", labelId, label.getProjectId(), userId,
                     "Updated label", Map.of("name", name, "color", color));
 
@@ -164,22 +142,17 @@ public class LabelController {
         }
     }
 
-    /**
-     * Delete a label
-     */
     @DeleteMapping("/{labelId}")
     public ResponseEntity<?> deleteLabel(@PathVariable String labelId) {
         try {
             String userId = getCurrentUserId();
 
-            // Get label to find project
             var label = labelService.getLabelById(labelId)
                     .orElse(null);
             if (label == null) {
                 return ResponseEntity.notFound().build();
             }
 
-            // Check permission
             if (!permissionService.hasPermission(label.getProjectId(), userId, "label.delete")) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN)
                         .body(Map.of("error", "You don't have permission to delete labels"));
@@ -187,7 +160,6 @@ public class LabelController {
 
             labelService.deleteLabel(labelId);
 
-            // Log action
             auditService.log("DELETE", "LABEL", labelId, label.getProjectId(), userId,
                     "Deleted label: " + label.getName(), null);
 
@@ -198,9 +170,6 @@ public class LabelController {
         }
     }
 
-    /**
-     * Search labels in a project
-     */
     @GetMapping("/projects/{projectId}/search")
     public ResponseEntity<?> searchLabels(
             @PathVariable String projectId,
@@ -208,7 +177,6 @@ public class LabelController {
         try {
             String userId = getCurrentUserId();
 
-            // Check permission
             if (!permissionService.hasPermission(projectId, userId, "project.view")) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
             }

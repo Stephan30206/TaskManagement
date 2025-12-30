@@ -27,7 +27,6 @@ public class TicketController {
     @Autowired
     private UserService userService;
 
-    // ✅ Méthode utilitaire pour récupérer l'ID utilisateur
     private String getCurrentUserId() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String email = auth.getName();
@@ -41,7 +40,6 @@ public class TicketController {
         String creatorId = getCurrentUserId();
         Ticket createdTicket = ticketService.createTicket(ticket, creatorId);
 
-        // ✅ Enrichir avec les données du créateur
         enrichTicketWithDetails(createdTicket);
 
         return ResponseEntity.ok(createdTicket);
@@ -51,7 +49,6 @@ public class TicketController {
     public ResponseEntity<List<Ticket>> getTicketsByProject(@PathVariable String projectId) {
         List<Ticket> tickets = ticketService.getTicketsByProject(projectId);
 
-        // ✅ Enrichir tous les tickets avec les détails
         tickets.forEach(this::enrichTicketWithDetails);
 
         return ResponseEntity.ok(tickets);
@@ -61,7 +58,6 @@ public class TicketController {
     public ResponseEntity<Ticket> getTicketById(@PathVariable String id) {
         return ticketService.getTicketById(id)
                 .map(ticket -> {
-                    // ✅ Enrichir avec créateur et assignés
                     enrichTicketWithDetails(ticket);
                     return ResponseEntity.ok(ticket);
                 })
@@ -96,7 +92,6 @@ public class TicketController {
             String userId = getCurrentUserId();
             Ticket updatedTicket = ticketService.updateTicket(id, ticketDetails, userId);
 
-            // ✅ Enrichir le ticket mis à jour
             enrichTicketWithDetails(updatedTicket);
 
             return ResponseEntity.ok(updatedTicket);
@@ -198,14 +193,10 @@ public class TicketController {
         return ResponseEntity.ok(tickets);
     }
 
-    // ✅ MÉTHODE UTILITAIRE POUR ENRICHIR LES TICKETS
     private void enrichTicketWithDetails(Ticket ticket) {
-        // Enrichir avec le créateur
         if (ticket.getCreatorId() != null) {
             userService.getUserById(ticket.getCreatorId()).ifPresent(ticket::setCreator);
         }
-
-        // Enrichir avec les assignés
         if (ticket.getAssigneeIds() != null && !ticket.getAssigneeIds().isEmpty()) {
             List<User> assignees = ticket.getAssigneeIds().stream()
                     .map(assigneeId -> userService.getUserById(assigneeId).orElse(null))

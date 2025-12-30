@@ -14,7 +14,7 @@ import java.util.Date;
 public class ChecklistItem {
 
     @Field("id")
-    private String id; // UUID for item identification
+    private String id;
 
     @NotBlank
     @Size(min = 1, max = 500)
@@ -28,19 +28,19 @@ public class ChecklistItem {
     private boolean completed;
 
     @Field("completedBy")
-    private String completedBy; // User ID who completed this item
+    private String completedBy;
 
     @Field("completedAt")
     private Date completedAt;
 
     @Field("assignedTo")
-    private String assignedTo; // User ID assigned to this item
+    private String assignedTo;
 
     @Field("dueDate")
     private Date dueDate;
 
     @Field("order")
-    private Integer order; // Position in checklist
+    private Integer order;
 
     @Field("createdAt")
     private Date createdAt;

@@ -49,17 +49,14 @@ public class Checklist {
     @Field("active")
     private boolean active;
 
-    // Computed field (not stored)
     public int getCompletedCount() {
         return (int) items.stream().filter(ChecklistItem::isCompleted).count();
     }
 
-    // Computed field (not stored)
     public int getTotalCount() {
         return items.size();
     }
 
-    // Computed field (not stored)
     public double getProgress() {
         if (items.isEmpty()) return 0;
         return (getCompletedCount() * 100.0) / getTotalCount();

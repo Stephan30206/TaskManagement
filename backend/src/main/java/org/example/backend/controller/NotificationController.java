@@ -24,9 +24,6 @@ public class NotificationController {
     @Autowired
     private UserService userService;
 
-    /**
-     * Get current user ID from JWT
-     */
     private String getCurrentUserId() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String email = auth.getName();
@@ -35,9 +32,6 @@ public class NotificationController {
                 .getId();
     }
 
-    /**
-     * Get all notifications for current user
-     */
     @GetMapping
     public ResponseEntity<?> getUserNotifications(
             @RequestParam(required = false, defaultValue = "0") int page,
@@ -47,7 +41,6 @@ public class NotificationController {
 
             List<Notification> notifications = notificationService.getUserNotifications(userId);
 
-            // Pagination
             int start = page * limit;
             int end = Math.min(start + limit, notifications.size());
             List<Notification> paginated = notifications.subList(start, end);
@@ -65,9 +58,6 @@ public class NotificationController {
         }
     }
 
-    /**
-     * Get unread notifications
-     */
     @GetMapping("/unread")
     public ResponseEntity<?> getUnreadNotifications() {
         try {
@@ -84,9 +74,6 @@ public class NotificationController {
         }
     }
 
-    /**
-     * Get active (not dismissed) notifications
-     */
     @GetMapping("/active")
     public ResponseEntity<?> getActiveNotifications() {
         try {
@@ -103,9 +90,6 @@ public class NotificationController {
         }
     }
 
-    /**
-     * Get notification by ID
-     */
     @GetMapping("/{notificationId}")
     public ResponseEntity<?> getNotification(@PathVariable String notificationId) {
         try {
@@ -118,9 +102,6 @@ public class NotificationController {
         }
     }
 
-    /**
-     * Mark notification as read
-     */
     @PutMapping("/{notificationId}/read")
     public ResponseEntity<?> markAsRead(@PathVariable String notificationId) {
         try {
@@ -132,9 +113,6 @@ public class NotificationController {
         }
     }
 
-    /**
-     * Mark all notifications as read for current user
-     */
     @PutMapping("/read-all")
     public ResponseEntity<?> markAllAsRead() {
         try {
@@ -148,9 +126,6 @@ public class NotificationController {
         }
     }
 
-    /**
-     * Dismiss a notification
-     */
     @PutMapping("/{notificationId}/dismiss")
     public ResponseEntity<?> dismissNotification(@PathVariable String notificationId) {
         try {
@@ -162,9 +137,6 @@ public class NotificationController {
         }
     }
 
-    /**
-     * Delete a notification
-     */
     @DeleteMapping("/{notificationId}")
     public ResponseEntity<?> deleteNotification(@PathVariable String notificationId) {
         try {
@@ -176,9 +148,6 @@ public class NotificationController {
         }
     }
 
-    /**
-     * Get count of unread notifications
-     */
     @GetMapping("/unread-count")
     public ResponseEntity<?> getUnreadCount() {
         try {
@@ -192,9 +161,6 @@ public class NotificationController {
         }
     }
 
-    /**
-     * Get notifications for a project
-     */
     @GetMapping("/projects/{projectId}")
     public ResponseEntity<?> getProjectNotifications(
             @PathVariable String projectId,
@@ -205,7 +171,6 @@ public class NotificationController {
 
             List<Notification> notifications = notificationService.getProjectNotifications(userId, projectId);
 
-            // Pagination
             int start = page * limit;
             int end = Math.min(start + limit, notifications.size());
             List<Notification> paginated = notifications.subList(start, end);
@@ -222,9 +187,6 @@ public class NotificationController {
         }
     }
 
-    /**
-     * Get notifications related to an entity
-     */
     @GetMapping("/entities/{entityId}")
     public ResponseEntity<?> getEntityNotifications(
             @PathVariable String entityId,

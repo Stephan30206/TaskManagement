@@ -34,7 +34,7 @@ public class TicketLabel {
     private String description;
 
     @Field("color")
-    private String color; // Hex color code (e.g., #FF5733)
+    private String color;
 
     @Indexed
     @Field("projectId")
@@ -42,7 +42,7 @@ public class TicketLabel {
 
     @Indexed
     @Field("createdBy")
-    private String createdBy; // User ID who created this label
+    private String createdBy;
 
     @Field("createdAt")
     private Date createdAt;
@@ -51,7 +51,7 @@ public class TicketLabel {
     private Date updatedAt;
 
     @Field("active")
-    private boolean active; // Soft delete via status
+    private boolean active;
 
     public TicketLabel(String name, String color, String projectId, String createdBy) {
         this.name = name;

@@ -24,7 +24,6 @@ const CalendarView: React.FC = () => {
     const navigate = useNavigate();
     const [currentDate, setCurrentDate] = useState(new Date());
 
-    // Fetch tickets
     const { data: tickets } = useQuery({
         queryKey: ['project-tickets', projectId],
         queryFn: () => ticketsApi.getByProject(projectId!),
@@ -33,12 +32,10 @@ const CalendarView: React.FC = () => {
 
     const ticketsData = tickets?.data || [];
 
-    // Générer les jours du mois
     const monthStart = startOfMonth(currentDate);
     const monthEnd = endOfMonth(currentDate);
     const daysInMonth = eachDayOfInterval({ start: monthStart, end: monthEnd });
 
-    // Récupérer les tickets pour une date donnée
     const getTicketsForDate = (date: Date) => {
         return ticketsData.filter((ticket: Ticket) => {
             if (!ticket.estimatedDate) return false;
@@ -46,7 +43,6 @@ const CalendarView: React.FC = () => {
         });
     };
 
-    // Navigation
     const handlePreviousMonth = () => {
         setCurrentDate(subMonths(currentDate, 1));
     };
@@ -74,16 +70,12 @@ const CalendarView: React.FC = () => {
         }
     };
 
-    // Jours de la semaine
     const weekDays = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
 
-    // Calculer le premier jour de la semaine pour le calendrier
     const firstDayOfMonth = monthStart.getDay();
-    const startDay = firstDayOfMonth === 0 ? 6 : firstDayOfMonth - 1; // Ajuster pour commencer lundi
-
+    const startDay = firstDayOfMonth === 0 ? 6 : firstDayOfMonth - 1;
     return (
         <Box>
-            {/* En-tête du calendrier */}
             <Box
                 display="flex"
                 justifyContent="space-between"
@@ -110,9 +102,7 @@ const CalendarView: React.FC = () => {
                 </Box>
             </Box>
 
-            {/* Calendrier */}
             <Card sx={{ p: 2 }}>
-                {/* Jours de la semaine */}
                 <Box
                     display="grid"
                     gridTemplateColumns="repeat(7, 1fr)"
@@ -132,7 +122,6 @@ const CalendarView: React.FC = () => {
                     ))}
                 </Box>
 
-                {/* Jours du mois */}
                 <Box
                     display="grid"
                     gridTemplateColumns="repeat(7, 1fr)"
@@ -143,12 +132,10 @@ const CalendarView: React.FC = () => {
                         },
                     }}
                 >
-                    {/* Cases vides avant le premier jour */}
                     {Array.from({ length: startDay }).map((_, index) => (
                         <Box key={`empty-${index}`} />
                     ))}
 
-                    {/* Jours du mois */}
                     {daysInMonth.map((day) => {
                         const dayTickets = getTicketsForDate(day);
                         const isToday = isSameDay(day, new Date());
@@ -170,7 +157,6 @@ const CalendarView: React.FC = () => {
                                     },
                                 }}
                             >
-                                {/* Numéro du jour */}
                                 <Box
                                     display="flex"
                                     justifyContent="space-between"
@@ -198,7 +184,6 @@ const CalendarView: React.FC = () => {
                                     )}
                                 </Box>
 
-                                {/* Tickets du jour */}
                                 <Box display="flex" flexDirection="column" gap={0.5}>
                                     {dayTickets.slice(0, 3).map((ticket: Ticket) => (
                                         <Tooltip
@@ -262,7 +247,6 @@ const CalendarView: React.FC = () => {
                 </Box>
             </Card>
 
-            {/* Légende */}
             <Box display="flex" gap={2} mt={3} flexWrap="wrap">
                 <Box display="flex" alignItems="center" gap={1}>
                     <Box

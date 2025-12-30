@@ -28,16 +28,13 @@ export default function CommentSection({ ticketId }: CommentSectionProps) {
         queryFn: () => commentApi.getWithAuthors(ticketId),
     });
 
-    // Extraction sécurisée des commentaires
     const comments: Comment[] = (() => {
         if (!commentsResponse) return [];
 
-        // Si c'est déjà un tableau (Comment[])
         if (Array.isArray(commentsResponse)) {
             return commentsResponse;
         }
 
-        // Si c'est une réponse Axios avec une propriété data
         if (commentsResponse.data && Array.isArray(commentsResponse.data)) {
             return commentsResponse.data;
         }
@@ -57,7 +54,6 @@ export default function CommentSection({ ticketId }: CommentSectionProps) {
         },
     });
 
-    // Update comment mutation
     const updateMutation = useMutation({
         mutationFn: ({ commentId, content }: { commentId: string; content: string }) =>
             commentApi.update(commentId, content),
@@ -106,7 +102,6 @@ export default function CommentSection({ ticketId }: CommentSectionProps) {
                 Commentaires ({comments.length})
             </Typography>
 
-            {/* Add Comment Section */}
             <Card sx={{ mb: 3, p: 2, borderRadius: 2, boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
                 <TextField
                     fullWidth
@@ -138,7 +133,6 @@ export default function CommentSection({ ticketId }: CommentSectionProps) {
                 </Box>
             </Card>
 
-            {/* Comments List */}
             {comments.length === 0 ? (
                 <Card sx={{ p: 4, textAlign: 'center', borderRadius: 2, bgcolor: 'background.paper' }}>
                     <Typography variant="body2" color="textSecondary">
@@ -150,7 +144,6 @@ export default function CommentSection({ ticketId }: CommentSectionProps) {
                     {comments.map((comment: Comment, index: number) => (
                         <Box key={comment.id}>
                             {editingCommentId === comment.id ? (
-                                // Edit Mode
                                 <Card sx={{ p: 2, mb: 2, borderRadius: 2, bgcolor: 'action.hover' }}>
                                     <TextField
                                         fullWidth
@@ -184,7 +177,6 @@ export default function CommentSection({ ticketId }: CommentSectionProps) {
                                     </Stack>
                                 </Card>
                             ) : (
-                                // View Mode
                                 <Card sx={{ p: 2, mb: 2, borderRadius: 2, boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}>
                                     <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 2 }}>
                                         <Avatar sx={{ width: 40, height: 40, flexShrink: 0 }}>

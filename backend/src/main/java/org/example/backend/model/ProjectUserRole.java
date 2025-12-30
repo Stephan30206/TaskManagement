@@ -33,10 +33,10 @@ public class ProjectUserRole {
     private String userId;
 
     @Field("role")
-    private String role; // ADMIN, MANAGER, MEMBER, OBSERVER
+    private String role;
 
     @Field("permissions")
-    private List<String> permissions; // Explicit list of permissions (for future extensibility)
+    private List<String> permissions;
 
     @Field("joinedAt")
     private Date joinedAt;
@@ -45,14 +45,11 @@ public class ProjectUserRole {
     private Date updatedAt;
 
     @Field("invitedBy")
-    private String invitedBy; // User who invited this member
+    private String invitedBy;
 
     @Field("status")
-    private String status; // ACTIVE, INACTIVE, SUSPENDED
+    private String status;
 
-    /**
-     * Predefined permission sets by role
-     */
     public static final List<String> ADMIN_PERMISSIONS = List.of(
         "project.view",
         "project.edit",
@@ -117,9 +114,6 @@ public class ProjectUserRole {
         "audit.view"
     );
 
-    /**
-     * Get permission list based on role
-     */
     public static List<String> getPermissionsForRole(String role) {
         return switch (role) {
             case "ADMIN" -> ADMIN_PERMISSIONS;
@@ -130,9 +124,6 @@ public class ProjectUserRole {
         };
     }
 
-    /**
-     * Check if this role has a specific permission
-     */
     public boolean hasPermission(String permission) {
         return this.permissions != null && this.permissions.contains(permission);
     }

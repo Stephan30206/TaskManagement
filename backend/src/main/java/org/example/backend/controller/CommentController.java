@@ -36,7 +36,6 @@ public class CommentController {
 
         Comment createdComment = commentService.createComment(comment, authorId);
 
-        // ✅ Enrichir avec l'auteur pour la réponse
         Map<String, Object> response = enrichCommentWithAuthor(createdComment);
 
         return ResponseEntity.ok(response);
@@ -49,15 +48,12 @@ public class CommentController {
         return ResponseEntity.ok(comments);
     }
 
-    // ✅ ENDPOINT PRINCIPAL POUR LE FRONTEND - Retourne les commentaires avec auteurs
     @GetMapping("/ticket/{ticketId}/with-authors")
     public ResponseEntity<List<Map<String, Object>>> getCommentsWithAuthors(@PathVariable String ticketId) {
         String userId = getCurrentUserId();
 
-        // Récupérer les commentaires
         List<Comment> comments = commentService.getCommentsByTicketId(ticketId, userId);
 
-        // ✅ Enrichir chaque commentaire avec les données de l'auteur
         List<Map<String, Object>> enrichedComments = new ArrayList<>();
         for (Comment comment : comments) {
             enrichedComments.add(enrichCommentWithAuthor(comment));
@@ -86,7 +82,6 @@ public class CommentController {
         String userId = getCurrentUserId();
         Comment updatedComment = commentService.updateComment(id, newContent, userId);
 
-        // ✅ Enrichir avec l'auteur
         Map<String, Object> response = enrichCommentWithAuthor(updatedComment);
 
         return ResponseEntity.ok(response);
@@ -182,11 +177,9 @@ public class CommentController {
         return ResponseEntity.ok(count);
     }
 
-    // ✅ MÉTHODE UTILITAIRE : Enrichir un commentaire avec les données de l'auteur
     private Map<String, Object> enrichCommentWithAuthor(Comment comment) {
         Map<String, Object> result = new HashMap<>();
 
-        // Données du commentaire
         result.put("id", comment.getId());
         result.put("content", comment.getContent());
         result.put("ticketId", comment.getTicketId());
@@ -194,7 +187,6 @@ public class CommentController {
         result.put("createdAt", comment.getCreatedAt());
         result.put("updatedAt", comment.getUpdatedAt());
 
-        // ✅ Ajouter les données de l'auteur
         if (comment.getAuthorId() != null) {
             userService.getUserById(comment.getAuthorId()).ifPresent(author -> {
                 Map<String, Object> authorMap = new HashMap<>();
@@ -209,9 +201,6 @@ public class CommentController {
         return result;
     }
 
-    /**
-     * Méthode helper pour obtenir l'ID de l'utilisateur courant
-     */
     private String getCurrentUserId() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 

@@ -133,7 +133,6 @@ const ProfilePage: React.FC = () => {
     };
 
     const handleCancel = () => {
-        // Utiliser les données de currentUserResponse.data ou user
         const userData = currentUserResponse?.data || user;
         setFormData({
             firstName: userData?.firstName || '',

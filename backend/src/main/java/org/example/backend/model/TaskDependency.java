@@ -25,18 +25,18 @@ public class TaskDependency {
 
     @Indexed
     @Field("dependentTicketId")
-    private String dependentTicketId; // The ticket that depends on another
+    private String dependentTicketId;
 
     @Indexed
     @Field("dependsOnTicketId")
-    private String dependsOnTicketId; // The ticket that must be completed first
+    private String dependsOnTicketId;
 
     @Indexed
     @Field("projectId")
     private String projectId;
 
     @Field("relationshipType")
-    private String relationshipType; // BLOCKING, BLOCKED_BY, RELATED_TO
+    private String relationshipType;
 
     @Field("description")
     private String description;
@@ -53,7 +53,6 @@ public class TaskDependency {
     @Field("active")
     private boolean active;
 
-    // Constructor
     public TaskDependency(String dependentTicketId, String dependsOnTicketId, String projectId, 
                          String relationshipType, String createdBy) {
         this.dependentTicketId = dependentTicketId;

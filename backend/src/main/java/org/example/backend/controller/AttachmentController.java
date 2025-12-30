@@ -37,7 +37,6 @@ public class AttachmentController {
         this.userService = userService;
     }
 
-    // --- Helper pour récupérer l'utilisateur courant ---
     private String getCurrentUserId() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String email = auth.getName();
@@ -46,7 +45,6 @@ public class AttachmentController {
                 .getId();
     }
 
-    // --- Upload ---
     @PostMapping("/upload")
     public ResponseEntity<?> uploadAttachment(
             @RequestParam MultipartFile file,
@@ -65,7 +63,6 @@ public class AttachmentController {
             long fileSize = file.getSize();
             String mimeType = file.getContentType();
 
-            // Simulate upload, in production upload to S3/GCS
             String fileUrl = "/uploads/" + UUID.randomUUID() + "/" + fileName;
 
             Attachment attachment = (commentId != null && !commentId.isBlank())
@@ -88,7 +85,6 @@ public class AttachmentController {
         }
     }
 
-    // --- Get by ID ---
     @GetMapping("/{attachmentId}")
     public ResponseEntity<?> getAttachment(@PathVariable String attachmentId) {
         try {
@@ -102,7 +98,6 @@ public class AttachmentController {
         }
     }
 
-    // --- Get all for ticket ---
     @GetMapping("/tickets/{ticketId}")
     public ResponseEntity<?> getTicketAttachments(@PathVariable String ticketId) {
         try {
@@ -113,7 +108,6 @@ public class AttachmentController {
         }
     }
 
-    // --- Get all for comment ---
     @GetMapping("/comments/{commentId}")
     public ResponseEntity<?> getCommentAttachments(@PathVariable String commentId) {
         try {
@@ -124,7 +118,6 @@ public class AttachmentController {
         }
     }
 
-    // --- Update metadata ---
     @PutMapping("/{attachmentId}")
     public ResponseEntity<?> updateAttachment(
             @PathVariable String attachmentId,
@@ -141,7 +134,6 @@ public class AttachmentController {
         }
     }
 
-    // --- Soft delete ---
     @DeleteMapping("/{attachmentId}")
     public ResponseEntity<?> deleteAttachment(@PathVariable String attachmentId) {
         try {
@@ -158,7 +150,6 @@ public class AttachmentController {
         }
     }
 
-    // --- Restore deleted attachment ---
     @PutMapping("/{attachmentId}/restore")
     public ResponseEntity<?> restoreAttachment(@PathVariable String attachmentId) {
         try {
@@ -169,7 +160,6 @@ public class AttachmentController {
         }
     }
 
-    // --- Set image dimensions ---
     @PutMapping("/{attachmentId}/dimensions")
     public ResponseEntity<?> setImageDimensions(
             @PathVariable String attachmentId,
@@ -185,7 +175,6 @@ public class AttachmentController {
         }
     }
 
-    // --- Download ---
     @GetMapping("/{attachmentId}/download")
     public ResponseEntity<?> downloadAttachment(@PathVariable String attachmentId) {
         try {
@@ -204,7 +193,6 @@ public class AttachmentController {
         }
     }
 
-    // --- Ticket attachment stats ---
     @GetMapping("/tickets/{ticketId}/stats")
     public ResponseEntity<?> getTicketAttachmentStats(@PathVariable String ticketId) {
         try {
