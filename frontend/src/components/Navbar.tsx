@@ -165,7 +165,7 @@ export default function Navbar() {
                     }}
                     onClick={() => navigate('/dashboard')}
                 >
-                    Gestion de projet
+                    ProjecHub
                 </Typography>
 
                 <TextField

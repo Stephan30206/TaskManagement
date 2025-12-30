@@ -37,7 +37,7 @@ import {
     Warning,
     Refresh,
 } from '@mui/icons-material';
-import { ticketApi, commentApi } from '../services/api';
+import { ticketApi, commentApi, userApi } from '../services/api';
 import type { Ticket, User, Comment } from '../services/types';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
@@ -88,38 +88,96 @@ const TicketDetailPage: React.FC = () => {
     const [permissionError, setPermissionError] = useState<string | null>(null);
     const [userHasEditPermission, setUserHasEditPermission] = useState(false);
     const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+    const [currentUser, setCurrentUser] = useState<User | null>(null);
     const [showDebugInfo] = useState(false);
     const [isCheckingPermissions, setIsCheckingPermissions] = useState(false);
 
-    const getUserIdFromStorage = useCallback((): string | null => {
-        try {
-            const userString = localStorage.getItem('user');
-            if (userString) {
-                const user: LocalStorageUser = JSON.parse(userString);
-                if (user?.id) {
-                    const userId = String(user.id);
-                    return userId;
-                }
-            }
-        } catch (error) {
-            console.error("Erreur de parsing user localStorage:", error);
+    // Query pour récupérer l'utilisateur actuel depuis l'API
+    const {
+        data: currentUserData,
+        isLoading: userLoading,
+        error: userError,
+    } = useQuery({
+        queryKey: ['currentUser'],
+        queryFn: () => userApi.getCurrentUser(),
+        retry: 1,
+        staleTime: 5 * 60 * 1000, // 5 minutes
+    });
+
+    const checkAuth = useCallback((): boolean => {
+        const token = localStorage.getItem('token') ||
+            localStorage.getItem('authToken') ||
+            sessionStorage.getItem('token');
+
+        if (!token) {
+            console.warn("Aucun token d'authentification trouvé");
+            return false;
         }
-        return null;
+
+        return true;
     }, []);
 
+    // Utiliser l'utilisateur récupéré depuis l'API
     useEffect(() => {
-        const userId = getUserIdFromStorage();
-        if (userId) {
-            console.log("User ID loaded from localStorage:", userId);
-            setCurrentUserId(userId);
-        } else {
-            console.warn("Aucun utilisateur trouvé dans localStorage");
-            setCurrentUserId(null);
-        }
-    }, [getUserIdFromStorage]);
+        if (currentUserData?.data) {
+            console.log("User data loaded from API:", currentUserData.data);
+            setCurrentUser(currentUserData.data);
+            setCurrentUserId(currentUserData.data.id);
 
-    const checkUserPermissions = useCallback(async (userId: string, ticketData: Ticket): Promise<boolean> => {
+            // Optionnel : sauvegarder dans localStorage pour usage futur
+            try {
+                localStorage.setItem('user', JSON.stringify(currentUserData.data));
+                console.log("User saved to localStorage");
+            } catch (error) {
+                console.error("Error saving user to localStorage:", error);
+            }
+        } else if (userError) {
+            console.error("Error loading user from API:", userError);
+        }
+    }, [currentUserData, userError]);
+
+    const getUserIdFromStorage = useCallback((): string | null => {
         try {
+            // Essayer différentes clés possibles
+            const userKeys = ['user', 'currentUser', 'authUser', 'userData'];
+
+            for (const key of userKeys) {
+                const userString = localStorage.getItem(key);
+                if (userString) {
+                    console.log(`User found in localStorage with key: ${key}`, userString);
+                    const user = JSON.parse(userString);
+
+                    // Chercher l'ID dans différentes propriétés possibles
+                    const userId = user?.id || user?._id || user?.userId || user?.ID;
+
+                    if (userId) {
+                        console.log("User ID found in localStorage:", userId);
+                        return String(userId);
+                    }
+                }
+            }
+
+            // Si pas trouvé, utiliser l'utilisateur depuis l'API
+            if (currentUser?.id) {
+                console.log("Using user ID from API data:", currentUser.id);
+                return currentUser.id;
+            }
+
+            console.warn("Aucun utilisateur trouvé");
+            return null;
+        } catch (error) {
+            console.error("Erreur de parsing user storage:", error);
+            return null;
+        }
+    }, [currentUser]);
+
+    const checkUserPermissions = useCallback(async (userId: string | null, ticketData: Ticket): Promise<boolean> => {
+        try {
+            if (!userId) {
+                console.warn("No user ID provided for permission check");
+                return false;
+            }
+
             const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
             if (isDevelopment) {
                 console.log("DEV MODE: Forcing permissions for testing");
@@ -135,19 +193,26 @@ const TicketDetailPage: React.FC = () => {
 
             let isAdmin = false;
             try {
-                const userString = localStorage.getItem('user');
-                if (userString) {
-                    const user: LocalStorageUser = JSON.parse(userString);
-                    isAdmin = user?.role === 'ADMIN' ||
-                        user?.role === 'admin' ||
-                        user?.Role === 'ADMIN' ||
-                        user?.Role === 'admin' ||
-                        user?.ROLE === 'ADMIN' ||
-                        user?.ROLE === 'admin';
-                    console.log("Admin check results:", {
-                        userData: user,
-                        isAdmin
-                    });
+                // Vérifier le rôle depuis l'utilisateur récupéré de l'API
+                if (currentUser) {
+                    const userRole = currentUser.role || currentUser.role;
+                    if (userRole && (userRole.toUpperCase() === 'ADMIN' || userRole === 'admin')) {
+                        isAdmin = true;
+                        console.log("User is admin from API data:", userRole);
+                    }
+                }
+
+                // Vérifier aussi dans localStorage au cas où
+                if (!isAdmin) {
+                    const userString = localStorage.getItem('user');
+                    if (userString) {
+                        const user: LocalStorageUser = JSON.parse(userString);
+                        const userRole = user?.role || user?.Role || user?.ROLE;
+                        if (userRole && (userRole.toUpperCase() === 'ADMIN' || userRole === 'admin')) {
+                            isAdmin = true;
+                            console.log("User is admin from localStorage:", userRole);
+                        }
+                    }
                 }
             } catch (error) {
                 console.error("Erreur vérification admin:", error);
@@ -178,7 +243,7 @@ const TicketDetailPage: React.FC = () => {
             console.error("Erreur lors de la vérification des permissions:", error);
             return false;
         }
-    }, []);
+    }, [currentUser]);
 
     const {
         data: ticket,
@@ -218,6 +283,26 @@ const TicketDetailPage: React.FC = () => {
 
         verifyPermissions();
     }, [ticket, currentUserId, checkUserPermissions]);
+
+    useEffect(() => {
+        // Vérifier d'abord si l'utilisateur est authentifié
+        const isAuthenticated = checkAuth();
+
+        if (!isAuthenticated) {
+            console.warn("Utilisateur non authentifié");
+            // Optionnel : rediriger vers login
+            // navigate('/login');
+        }
+
+        // Si l'utilisateur n'est pas encore chargé via l'API, essayer localStorage
+        if (!currentUserId) {
+            const userId = getUserIdFromStorage();
+            if (userId) {
+                console.log("User ID loaded from storage:", userId);
+                setCurrentUserId(userId);
+            }
+        }
+    }, [checkAuth, getUserIdFromStorage, currentUserId]);
 
     const updateMutation = useMutation({
         mutationFn: (data: Partial<Ticket>) => ticketApi.update(ticketId!, data),
@@ -261,22 +346,35 @@ const TicketDetailPage: React.FC = () => {
     });
 
     const createCommentMutation = useMutation({
-        mutationFn: (content: string) => {localStorage
-            let authorId = '';
-            try {
+        mutationFn: (content: string) => {
+            console.log("Creating comment with content:", content);
+
+            // Utiliser l'ID utilisateur actuel
+            let authorId = currentUserId;
+
+            if (!authorId && currentUser?.id) {
+                authorId = currentUser.id;
+            }
+
+            if (!authorId) {
+                // Dernier recours : essayer localStorage
                 const userString = localStorage.getItem('user');
                 if (userString) {
-                    const user: LocalStorageUser = JSON.parse(userString);
-                    authorId = user?.id ? String(user.id) : '';
+                    try {
+                        const user = JSON.parse(userString);
+                        authorId = user?.id || user?._id;
+                    } catch (e) {
+                        console.error("Error parsing user from localStorage:", e);
+                    }
                 }
-            } catch (error) {
-                console.error("Erreur récupération authorId:", error);
             }
+
+            console.log("Author ID for comment:", authorId);
 
             return commentApi.create({
                 content,
                 ticketId: ticketId!,
-                authorId: authorId
+                authorId: authorId || undefined
             });
         },
         onSuccess: () => {
@@ -355,13 +453,14 @@ const TicketDetailPage: React.FC = () => {
             return 'Erreur de format';
         }
     };
-
-    if (ticketLoading || isCheckingPermissions) {
+    if (ticketLoading || isCheckingPermissions || userLoading) {
         return (
             <Container sx={{ mt: 4 }}>
                 <LinearProgress />
                 <Typography variant="body2" sx={{ mt: 2, textAlign: 'center' }}>
-                    {ticketLoading ? 'Chargement du ticket...' : 'Vérification des permissions...'}
+                    {ticketLoading ? 'Chargement du ticket...' :
+                        userLoading ? 'Chargement des informations utilisateur...' :
+                            'Vérification des permissions...'}
                 </Typography>
             </Container>
         );
@@ -453,7 +552,6 @@ const TicketDetailPage: React.FC = () => {
                     >
                         Retour
                     </Button>
-
                 </Box>
 
                 <Box display="flex" justifyContent="space-between" alignItems="flex-start" gap={2} flexWrap="wrap">
@@ -770,7 +868,6 @@ const TicketDetailPage: React.FC = () => {
                 </DialogActions>
             </Dialog>
 
-            {/* Delete Dialog */}
             <Dialog
                 open={isDeleteDialogOpen}
                 onClose={() => setIsDeleteDialogOpen(false)}

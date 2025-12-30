@@ -54,8 +54,11 @@ api.interceptors.response.use(
     }
 );
 
+class RegisterFormData {
+}
+
 export const authApi = {
-    register: (userData: Omit<User, 'id' | 'createdAt' | 'updatedAt'>) =>
+    register: (userData: Omit<RegisterFormData, "confirmPassword">) =>
         api.post<AuthResponse>('/auth/register', userData),
     login: (credentials: { email: string; password: string }) =>
         api.post<AuthResponse>('/auth/login', credentials),

@@ -6,7 +6,6 @@ import { useMutation } from '@tanstack/react-query';
 import { useSnackbar } from 'notistack';
 import {
     Container,
-    Paper,
     TextField,
     Button,
     Typography,
@@ -14,8 +13,12 @@ import {
     CircularProgress,
     InputAdornment,
     IconButton,
+    Grid,
 } from '@mui/material';
-import { Visibility, VisibilityOff } from '@mui/icons-material';
+import {
+    Visibility,
+    VisibilityOff,
+} from '@mui/icons-material';
 
 interface RegisterFormData {
     firstName: string;
@@ -126,175 +129,367 @@ const RegisterPage: React.FC = () => {
     };
 
     return (
-        <Container maxWidth="md" sx={{ mt: 4, mb: 8 }}>
-            <Paper
-                elevation={3}
+        <Box sx={{ minHeight: '100vh', bgcolor: '#f8f9fa' }}>
+            {/* Header/Navigation */}
+            <Box
                 sx={{
-                    p: 4,
-                    borderRadius: 2,
-                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                    color: 'white',
+                    bgcolor: 'white',
+                    borderBottom: '1px solid #e2e8f0',
+                    py: 2,
+                    position: 'sticky',
+                    top: 0,
+                    zIndex: 100,
+                    boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
                 }}
             >
-                <Box textAlign="center" mb={3}>
-                    <Typography variant="h3" component="h1" gutterBottom fontWeight="bold">
-                        TaskFlow
-                    </Typography>
-                    <Typography variant="subtitle1" sx={{ opacity: 0.9 }}>
-                        Créez votre compte
-                    </Typography>
-                </Box>
-
-                <Paper elevation={0} sx={{ p: 4, borderRadius: 2, bgcolor: 'white' }}>
-                    <Typography variant="h5" component="h2" gutterBottom align="center" color="textPrimary">
-                        Inscription
-                    </Typography>
-
-                    <form onSubmit={handleSubmit}>
-                        <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
-                            <TextField
-                                fullWidth
-                                label="Prénom"
-                                name="firstName"
-                                value={formData.firstName}
-                                onChange={handleChange}
-                                error={!!validationErrors.firstName}
-                                helperText={validationErrors.firstName}
-                                disabled={mutation.isPending}
-                                required
-                                variant="outlined"
-                            />
-                            <TextField
-                                fullWidth
-                                label="Nom"
-                                name="lastName"
-                                value={formData.lastName}
-                                onChange={handleChange}
-                                error={!!validationErrors.lastName}
-                                helperText={validationErrors.lastName}
-                                disabled={mutation.isPending}
-                                required
-                                variant="outlined"
-                            />
-                        </Box>
-
-                        <TextField
-                            fullWidth
-                            label="Email"
-                            name="email"
-                            type="email"
-                            value={formData.email}
-                            onChange={handleChange}
-                            error={!!validationErrors.email}
-                            helperText={validationErrors.email}
-                            disabled={mutation.isPending}
-                            margin="normal"
-                            required
-                            variant="outlined"
-                        />
-
-                        <TextField
-                            fullWidth
-                            label="Téléphone"
-                            name="phone"
-                            value={formData.phone}
-                            onChange={handleChange}
-                            error={!!validationErrors.phone}
-                            helperText={validationErrors.phone}
-                            disabled={mutation.isPending}
-                            margin="normal"
-                            required
-                            variant="outlined"
-                            placeholder="+33 1 23 45 67 89"
-                        />
-
-                        <TextField
-                            fullWidth
-                            label="Mot de passe"
-                            name="password"
-                            type={showPassword ? 'text' : 'password'}
-                            value={formData.password}
-                            onChange={handleChange}
-                            error={!!validationErrors.password}
-                            helperText={validationErrors.password}
-                            disabled={mutation.isPending}
-                            margin="normal"
-                            required
-                            variant="outlined"
-                            InputProps={{
-                                endAdornment: (
-                                    <InputAdornment position="end">
-                                        <IconButton
-                                            onClick={() => setShowPassword(!showPassword)}
-                                            edge="end"
-                                        >
-                                            {showPassword ? <VisibilityOff /> : <Visibility />}
-                                        </IconButton>
-                                    </InputAdornment>
-                                ),
+                <Container maxWidth="lg">
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <Typography
+                            variant="h5"
+                            fontWeight={700}
+                            component={Link}
+                            to="/login"
+                            sx={{
+                                background: 'linear-gradient(135deg, #5e72e4 0%, #825ee4 100%)',
+                                backgroundClip: 'text',
+                                WebkitBackgroundClip: 'text',
+                                WebkitTextFillColor: 'transparent',
+                                letterSpacing: '-0.5px',
+                                textDecoration: 'none',
                             }}
-                        />
-
-                        <TextField
-                            fullWidth
-                            label="Confirmer le mot de passe"
-                            name="confirmPassword"
-                            type={showConfirmPassword ? 'text' : 'password'}
-                            value={formData.confirmPassword}
-                            onChange={handleChange}
-                            error={!!validationErrors.confirmPassword}
-                            helperText={validationErrors.confirmPassword}
-                            disabled={mutation.isPending}
-                            margin="normal"
-                            required
-                            variant="outlined"
-                            InputProps={{
-                                endAdornment: (
-                                    <InputAdornment position="end">
-                                        <IconButton
-                                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                                            edge="end"
-                                        >
-                                            {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
-                                        </IconButton>
-                                    </InputAdornment>
-                                ),
-                            }}
-                        />
-
-                        <Button
-                            type="submit"
-                            fullWidth
-                            variant="contained"
-                            size="large"
-                            disabled={mutation.isPending}
-                            sx={{ mt: 3, mb: 2, py: 1.5 }}
                         >
-                            {mutation.isPending ? (
-                                <CircularProgress size={24} color="inherit" />
-                            ) : (
-                                "S'inscrire"
-                            )}
-                        </Button>
+                            ProjecHub
+                        </Typography>
+                        <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+                            <Typography variant="body2" color="text.secondary">
+                                Déjà inscrit ?
+                            </Typography>
+                            <Button
+                                component={Link}
+                                to="/login"
+                                variant="outlined"
+                                sx={{
+                                    textTransform: 'none',
+                                    borderRadius: 2,
+                                    px: 3,
+                                    borderColor: '#5e72e4',
+                                    color: '#5e72e4',
+                                    '&:hover': {
+                                        borderColor: '#4c63d2',
+                                        bgcolor: 'rgba(94, 114, 228, 0.04)',
+                                    }
+                                }}
+                            >
+                                Se connecter
+                            </Button>
+                        </Box>
+                    </Box>
+                </Container>
+            </Box>
 
-                        <Box textAlign="center" mt={2}>
-                            <Typography variant="body2" color="textSecondary" gutterBottom>
-                                Déjà un compte?{' '}
-                                <Link to="/login" style={{ textDecoration: 'none', color: '#1976d2' }}>
-                                    Se connecter
-                                </Link>
+            {/* Hero Section with Register Form */}
+            <Container maxWidth="lg" sx={{ py: 8 }}>
+                <Grid container spacing={6} alignItems="center">
+                    {/* Left Side - Content */}
+                    <Grid size={{ xs: 12, md: 6 }}>
+                        <Box>
+                            <Typography
+                                variant="h2"
+                                fontWeight={800}
+                                sx={{
+                                    mb: 3,
+                                    fontSize: { xs: '2.5rem', md: '3.5rem' },
+                                    lineHeight: 1.2,
+                                    color: '#1a202c',
+                                    letterSpacing: '-1px',
+                                }}
+                            >
+                                Commencez{' '}
+                                <Box
+                                    component="span"
+                                    sx={{
+                                        background: 'linear-gradient(135deg, #5e72e4 0%, #825ee4 100%)',
+                                        backgroundClip: 'text',
+                                        WebkitBackgroundClip: 'text',
+                                        WebkitTextFillColor: 'transparent',
+                                    }}
+                                >
+                                    gratuitement
+                                </Box>
+                                {' '}aujourd'hui
+                            </Typography>
+                            <Typography
+                                variant="h6"
+                                color="text.secondary"
+                                sx={{ mb: 5, lineHeight: 1.7, fontWeight: 400 }}
+                            >
+                                Rejoignez plus de 50 000 équipes qui utilisent ProjecHub pour transformer leur façon de travailler.
                             </Typography>
                         </Box>
-                    </form>
-                </Paper>
+                    </Grid>
 
-                <Box mt={4} textAlign="center">
-                    <Typography variant="caption" sx={{ opacity: 0.8 }}>
-                        © 2024 TaskFlow - Gestion de tâches collaborative
-                    </Typography>
-                </Box>
-            </Paper>
-        </Container>
+                    {/* Right Side - Register Form */}
+                    <Grid size={{ xs: 12, md: 6 }}>
+                        <Box
+                            sx={{
+                                bgcolor: 'white',
+                                borderRadius: 4,
+                                p: 5,
+                                boxShadow: '0 20px 60px rgba(0,0,0,0.1)',
+                                border: '1px solid #e2e8f0',
+                            }}
+                        >
+                            <Typography
+                                variant="h4"
+                                fontWeight={700}
+                                gutterBottom
+                                sx={{ mb: 1, color: '#1a202c' }}
+                            >
+                                Créer un compte
+                            </Typography>
+                            <Typography variant="body1" color="text.secondary" sx={{ mb: 4 }}>
+                                Démarrez votre essai gratuit maintenant
+                            </Typography>
+
+                            <form onSubmit={handleSubmit}>
+                                <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
+                                    <TextField
+                                        fullWidth
+                                        label="Prénom"
+                                        name="firstName"
+                                        value={formData.firstName}
+                                        onChange={handleChange}
+                                        error={!!validationErrors.firstName}
+                                        helperText={validationErrors.firstName}
+                                        disabled={mutation.isPending}
+                                        required
+                                        variant="outlined"
+                                        sx={{
+                                            '& .MuiOutlinedInput-root': {
+                                                borderRadius: 2,
+                                                '&:hover fieldset': {
+                                                    borderColor: '#5e72e4',
+                                                },
+                                            }
+                                        }}
+                                    />
+                                    <TextField
+                                        fullWidth
+                                        label="Nom"
+                                        name="lastName"
+                                        value={formData.lastName}
+                                        onChange={handleChange}
+                                        error={!!validationErrors.lastName}
+                                        helperText={validationErrors.lastName}
+                                        disabled={mutation.isPending}
+                                        required
+                                        variant="outlined"
+                                        sx={{
+                                            '& .MuiOutlinedInput-root': {
+                                                borderRadius: 2,
+                                                '&:hover fieldset': {
+                                                    borderColor: '#5e72e4',
+                                                },
+                                            }
+                                        }}
+                                    />
+                                </Box>
+
+                                <TextField
+                                    fullWidth
+                                    label="Adresse email professionnelle"
+                                    name="email"
+                                    type="email"
+                                    value={formData.email}
+                                    onChange={handleChange}
+                                    error={!!validationErrors.email}
+                                    helperText={validationErrors.email}
+                                    disabled={mutation.isPending}
+                                    margin="normal"
+                                    required
+                                    variant="outlined"
+                                    sx={{
+                                        mb: 2,
+                                        '& .MuiOutlinedInput-root': {
+                                            borderRadius: 2,
+                                            '&:hover fieldset': {
+                                                borderColor: '#5e72e4',
+                                            },
+                                        }
+                                    }}
+                                />
+
+                                <TextField
+                                    fullWidth
+                                    label="Téléphone"
+                                    name="phone"
+                                    value={formData.phone}
+                                    onChange={handleChange}
+                                    error={!!validationErrors.phone}
+                                    helperText={validationErrors.phone}
+                                    disabled={mutation.isPending}
+                                    margin="normal"
+                                    required
+                                    variant="outlined"
+                                    placeholder="+33 1 23 45 67 89"
+                                    sx={{
+                                        mb: 2,
+                                        '& .MuiOutlinedInput-root': {
+                                            borderRadius: 2,
+                                            '&:hover fieldset': {
+                                                borderColor: '#5e72e4',
+                                            },
+                                        }
+                                    }}
+                                />
+
+                                <TextField
+                                    fullWidth
+                                    label="Mot de passe"
+                                    name="password"
+                                    type={showPassword ? 'text' : 'password'}
+                                    value={formData.password}
+                                    onChange={handleChange}
+                                    error={!!validationErrors.password}
+                                    helperText={validationErrors.password}
+                                    disabled={mutation.isPending}
+                                    margin="normal"
+                                    required
+                                    variant="outlined"
+                                    sx={{
+                                        mb: 2,
+                                        '& .MuiOutlinedInput-root': {
+                                            borderRadius: 2,
+                                            '&:hover fieldset': {
+                                                borderColor: '#5e72e4',
+                                            },
+                                        }
+                                    }}
+                                    InputProps={{
+                                        endAdornment: (
+                                            <InputAdornment position="end">
+                                                <IconButton
+                                                    onClick={() => setShowPassword(!showPassword)}
+                                                    edge="end"
+                                                    sx={{ color: '#a0aec0' }}
+                                                >
+                                                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                                                </IconButton>
+                                            </InputAdornment>
+                                        ),
+                                    }}
+                                />
+
+                                <TextField
+                                    fullWidth
+                                    label="Confirmer le mot de passe"
+                                    name="confirmPassword"
+                                    type={showConfirmPassword ? 'text' : 'password'}
+                                    value={formData.confirmPassword}
+                                    onChange={handleChange}
+                                    error={!!validationErrors.confirmPassword}
+                                    helperText={validationErrors.confirmPassword}
+                                    disabled={mutation.isPending}
+                                    margin="normal"
+                                    required
+                                    variant="outlined"
+                                    sx={{
+                                        mb: 3,
+                                        '& .MuiOutlinedInput-root': {
+                                            borderRadius: 2,
+                                            '&:hover fieldset': {
+                                                borderColor: '#5e72e4',
+                                            },
+                                        }
+                                    }}
+                                    InputProps={{
+                                        endAdornment: (
+                                            <InputAdornment position="end">
+                                                <IconButton
+                                                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                                    edge="end"
+                                                    sx={{ color: '#a0aec0' }}
+                                                >
+                                                    {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
+                                                </IconButton>
+                                            </InputAdornment>
+                                        ),
+                                    }}
+                                />
+
+                                <Button
+                                    type="submit"
+                                    fullWidth
+                                    variant="contained"
+                                    size="large"
+                                    disabled={mutation.isPending}
+                                    sx={{
+                                        py: 1.5,
+                                        borderRadius: 2,
+                                        fontWeight: 600,
+                                        textTransform: 'none',
+                                        fontSize: '1rem',
+                                        background: 'linear-gradient(135deg, #5e72e4 0%, #825ee4 100%)',
+                                        boxShadow: '0 4px 14px rgba(94, 114, 228, 0.4)',
+                                        '&:hover': {
+                                            background: 'linear-gradient(135deg, #4c63d2 0%, #7049d0 100%)',
+                                            boxShadow: '0 6px 20px rgba(94, 114, 228, 0.5)',
+                                        },
+                                        '&:disabled': {
+                                            background: '#cbd5e0',
+                                        }
+                                    }}
+                                >
+                                    {mutation.isPending ? (
+                                        <CircularProgress size={24} color="inherit" />
+                                    ) : (
+                                        "Commencer gratuitement"
+                                    )}
+                                </Button>
+
+                                <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 2, textAlign: 'center' }}>
+                                    En créant un compte, vous acceptez nos{' '}
+                                    <Link to="/terms" style={{ color: '#5e72e4', textDecoration: 'none' }}>
+                                        conditions d'utilisation
+                                    </Link>
+                                    {' '}et notre{' '}
+                                    <Link to="/privacy" style={{ color: '#5e72e4', textDecoration: 'none' }}>
+                                        politique de confidentialité
+                                    </Link>
+                                </Typography>
+
+                                <Box textAlign="center" mt={3}>
+                                    <Typography variant="body2" color="text.secondary">
+                                        Vous avez déjà un compte ?{' '}
+                                        <Link
+                                            to="/login"
+                                            style={{
+                                                textDecoration: 'none',
+                                                color: '#5e72e4',
+                                                fontWeight: 600,
+                                            }}
+                                        >
+                                            Connectez-vous
+                                        </Link>
+                                    </Typography>
+                                </Box>
+                            </form>
+                        </Box>
+                    </Grid>
+                </Grid>
+            </Container>
+
+            {/* Footer */}
+            <Box sx={{ bgcolor: '#1a202c', color: 'white', py: 4, mt: 8 }}>
+                <Container maxWidth="lg">
+                    <Box sx={{ textAlign: 'center' }}>
+                        <Typography variant="body2" sx={{ opacity: 0.8 }}>
+                            © 2025 ProjecHub — Plateforme de gestion de projet nouvelle génération
+                        </Typography>
+                    </Box>
+                </Container>
+            </Box>
+        </Box>
     );
 };
 
